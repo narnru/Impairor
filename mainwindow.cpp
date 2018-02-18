@@ -9,14 +9,6 @@ MainWindow::MainWindow(QWidget *parent) : // То что произойдет в
     ui->setupUi(this); //Хз что это
     serial = new QSerialPort(); // переменная для подключения по COM порту
     //timer = new QTimer(this); // таймер
-//WTF??
-    // Заполнение ComboBox-a
-//    QStringList TC_Channels;
-//    TC_Channels.push_back("3A");
-//    TC_Channels.push_back("3B");
-//    TC_Channels.push_back("3C");
-//    TC_Channels.push_back("3D");
-//    ui->comboBoxTC_Channel->addItems(TC_Channels);
 
     // Заполнение ComboBox-a
     QStringList Colours;
