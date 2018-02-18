@@ -17,6 +17,15 @@ private:
     QTime time;
     QSerialPort *serial;
 
+private slots:
+    void on_pushButtonConnect_clicked();
+
+    void scanBauds();
+
+    QString readDataAction();
+    void sendDataAction(QString data);
+
+
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();

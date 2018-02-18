@@ -18,12 +18,15 @@
   </property>
   <widget class="QWidget" name="centralWidget">
    <widget class="QGroupBox" name="groupBox">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
     <property name="geometry">
      <rect>
       <x>10</x>
       <y>60</y>
       <width>311</width>
-      <height>53</height>
+      <height>71</height>
      </rect>
     </property>
     <property name="title">
@@ -116,20 +119,20 @@
      <rect>
       <x>10</x>
       <y>10</y>
-      <width>181</width>
-      <height>25</height>
+      <width>201</width>
+      <height>27</height>
      </rect>
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QLabel" name="label">
+      <widget class="QLabel" name="COMlabel">
        <property name="text">
         <string>COM</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QComboBox" name="comboBox">
+      <widget class="QComboBox" name="comboBoxPortName">
        <item>
         <property name="text">
          <string>Channel</string>
@@ -138,7 +141,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButton">
+      <widget class="QPushButton" name="pushButtonConnect">
        <property name="text">
         <string>Connect</string>
        </property>
@@ -164,7 +167,7 @@
        <x>10</x>
        <y>20</y>
        <width>291</width>
-       <height>25</height>
+       <height>27</height>
       </rect>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_7">
@@ -223,7 +226,7 @@
        <x>10</x>
        <y>20</y>
        <width>291</width>
-       <height>80</height>
+       <height>92</height>
       </rect>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_6">
@@ -334,7 +337,7 @@
      </layout>
     </widget>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>10</x>
@@ -413,9 +416,6 @@
    <zorder>line_2</zorder>
    <zorder>groupBox_2</zorder>
    <zorder>groupBox_3</zorder>
-   <zorder>label_13</zorder>
-   <zorder>lineEdit_9</zorder>
-   <zorder>pushButton_6</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
@@ -423,7 +423,7 @@
      <x>0</x>
      <y>0</y>
      <width>759</width>
-     <height>21</height>
+     <height>25</height>
     </rect>
    </property>
   </widget>
