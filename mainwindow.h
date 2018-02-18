@@ -18,7 +18,7 @@ private:
     QSerialPort *serial;    
 
 private slots:
-    void on_pushButtonConnect_clicked();
+    void on_pushButton_Connect_TC_clicked();
 
     void scanBauds();
 

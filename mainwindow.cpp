@@ -9,8 +9,22 @@ MainWindow::MainWindow(QWidget *parent) : // То что произойдет в
     ui->setupUi(this); //Хз что это
     serial = new QSerialPort(); // переменная для подключения по COM порту
     //timer = new QTimer(this); // таймер
+//WTF??
+    // Заполнение ComboBox-a
+//    QStringList TC_Channels;
+//    TC_Channels.push_back("3A");
+//    TC_Channels.push_back("3B");
+//    TC_Channels.push_back("3C");
+//    TC_Channels.push_back("3D");
+//    ui->comboBoxTC_Channel->addItems(TC_Channels);
 
-<<<<<<< HEAD
+    // Заполнение ComboBox-a
+    QStringList Colours;
+    Colours.push_back("black");
+    Colours.push_back("red");
+    Colours.push_back("green");
+    Colours.push_back("blue");
+    ui->comboBox_Colour->addItems(Colours);
 
     ui->comboBoxPortName->clear();// Получение списка доступных портов
     foreach (const QSerialPortInfo &info, QSerialPortInfo::availablePorts())
@@ -37,11 +51,11 @@ void MainWindow::sendDataAction(QString data)//Отправка данных п�
     return;
 }
 
-void MainWindow::on_pushButtonConnect_clicked()
+void MainWindow::on_pushButton_Connect_TC_clicked()
 {
-=======
+
     serial = new QSerialPort(); // переменная для подключения по COM порту
->>>>>>> origin/master
+
 
     serial->setDataBits(QSerialPort::Data8);//Значения по мануалу такие
     serial->setStopBits(QSerialPort::OneStop);//Работает не трогай
@@ -50,7 +64,7 @@ void MainWindow::on_pushButtonConnect_clicked()
 
     serial->setBaudRate(QSerialPort::Baud9600);//дефолт. ЭТО ТРОГАТЬ МОЖНО.
 
-<<<<<<< HEAD
+
     if (!serial->open(QIODevice::ReadWrite)) //попытка подключится с дефолтными параметрами
     {
         QSerialPort::SerialPortError getError = QSerialPort::NoError;
@@ -65,27 +79,9 @@ void MainWindow::on_pushButtonConnect_clicked()
     {
         scanBauds();
     }
-=======
 
 
 
-    // Заполнение ComboBox-a
-    QStringList TC_Channels;
-    TC_Channels.push_back("3A");
-    TC_Channels.push_back("3B");
-    TC_Channels.push_back("3C");
-    TC_Channels.push_back("3D");
-    ui->comboBoxTC_Channel->addItems(TC_Channels);
-
-    // Заполнение ComboBox-a
-    QStringList Colours;
-    Colours.push_back("black");
-    Colours.push_back("red");
-    Colours.push_back("green");
-    Colours.push_back("blue");
-    ui->comboBox_Colour->addItems(Colours);
-
->>>>>>> origin/master
 
 }
 
@@ -113,10 +109,8 @@ void MainWindow::scanBauds()
 
 MainWindow::~MainWindow()
 {
-<<<<<<< HEAD
-    //delete timer;
-=======
->>>>>>> origin/master
+     //delete timer;
+
     delete serial;
     delete ui; // чисти, чисти
 }
