@@ -9,7 +9,10 @@ MainWindow::MainWindow(QWidget *parent) : // То что произойдет в
     ui->setupUi(this); //Хз что это
     serial = new QSerialPort(); // переменная для подключения по COM порту
     //timer = new QTimer(this); // таймер
-//WTF??
+
+
+
+    //  WTF??
     // Заполнение ComboBox-a
 //    QStringList TC_Channels;
 //    TC_Channels.push_back("3A");
@@ -18,12 +21,16 @@ MainWindow::MainWindow(QWidget *parent) : // То что произойдет в
 //    TC_Channels.push_back("3D");
 //    ui->comboBoxTC_Channel->addItems(TC_Channels);
 
+
+
+
     // Заполнение ComboBox-a
     QStringList Colours;
     Colours.push_back("black");
     Colours.push_back("red");
     Colours.push_back("green");
     Colours.push_back("blue");
+    ui->comboBox_Colour->clear();
     ui->comboBox_Colour->addItems(Colours);
 
     ui->comboBoxPortName->clear();// Получение списка доступных портов
@@ -63,12 +70,14 @@ void MainWindow::on_pushButton_Connect_TC_clicked()
     serial->setFlowControl(QSerialPort::HardwareControl);
 
     serial->setBaudRate(QSerialPort::Baud9600);//дефолт. ЭТО ТРОГАТЬ МОЖНО.
+    serial->setPortName(ui->comboBoxPortName->currentText()); //пока что выбирать порт будем лапками
 
 
     if (!serial->open(QIODevice::ReadWrite)) //попытка подключится с дефолтными параметрами
     {
         QSerialPort::SerialPortError getError = QSerialPort::NoError;
         serial->error(getError);
+        return;
     }
 
     QString query = "*IDN?\n";
@@ -79,10 +88,6 @@ void MainWindow::on_pushButton_Connect_TC_clicked()
     {
         scanBauds();
     }
-
-
-
-
 }
 
 void MainWindow::scanBauds()
