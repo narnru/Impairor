@@ -24,7 +24,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>60</y>
+      <y>52</y>
       <width>311</width>
       <height>71</height>
      </rect>
@@ -34,7 +34,7 @@
     </property>
     <layout class="QGridLayout" name="gridLayout_4">
      <item row="0" column="4">
-      <widget class="QComboBox" name="comboBox_4">
+      <widget class="QComboBox" name="comboBox_Colour">
        <property name="editable">
         <bool>false</bool>
        </property>
@@ -54,7 +54,7 @@
       </widget>
      </item>
      <item row="0" column="1">
-      <widget class="QComboBox" name="comboBox_2">
+      <widget class="QComboBox" name="comboBox_OutPut">
        <item>
         <property name="text">
          <string>Channel</string>
@@ -81,7 +81,7 @@
      </item>
     </layout>
    </widget>
-   <widget class="QCustomPlot" name="widget" native="true">
+   <widget class="QCustomPlot" name="widget_PC" native="true">
     <property name="geometry">
      <rect>
       <x>330</x>
@@ -91,7 +91,7 @@
      </rect>
     </property>
    </widget>
-   <widget class="QCustomPlot" name="widget_2" native="true">
+   <widget class="QCustomPlot" name="widget_Power" native="true">
     <property name="geometry">
      <rect>
       <x>330</x>
@@ -141,7 +141,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButtonConnect">
+      <widget class="QPushButton" name="pushButton_Connect_TC">
        <property name="text">
         <string>Connect</string>
        </property>
@@ -199,7 +199,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton_4">
+       <widget class="QPushButton" name="pushButton_Start_Power">
         <property name="text">
          <string>Start</string>
         </property>
@@ -309,7 +309,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QComboBox" name="comboBox_3">
+           <widget class="QComboBox" name="comboBox_Inout_PID">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -328,7 +328,7 @@
        </layout>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton_5">
+       <widget class="QPushButton" name="pushButton_Start_PID">
         <property name="text">
          <string>Start</string>
         </property>
@@ -357,7 +357,7 @@
         </widget>
        </item>
        <item row="0" column="2">
-        <widget class="QPushButton" name="pushButton_2">
+        <widget class="QPushButton" name="pushButton_Send">
          <property name="text">
           <string>Send</string>
          </property>
@@ -374,7 +374,7 @@
         <widget class="QLineEdit" name="lineEdit_2"/>
        </item>
        <item row="1" column="2">
-        <widget class="QPushButton" name="pushButton_3">
+        <widget class="QPushButton" name="pushButton_Recieve">
          <property name="text">
           <string>Recieve</string>
          </property>
@@ -398,7 +398,7 @@
         <widget class="QLineEdit" name="lineEdit_9"/>
        </item>
        <item row="0" column="2">
-        <widget class="QPushButton" name="pushButton_6">
+        <widget class="QPushButton" name="pushButton_Export">
          <property name="text">
           <string>Export</string>
          </property>
@@ -411,8 +411,8 @@
    <zorder>layoutWidget</zorder>
    <zorder>layoutWidget</zorder>
    <zorder>groupBox</zorder>
-   <zorder>widget</zorder>
-   <zorder>widget_2</zorder>
+   <zorder>widget_PC</zorder>
+   <zorder>widget_Power</zorder>
    <zorder>line_2</zorder>
    <zorder>groupBox_2</zorder>
    <zorder>groupBox_3</zorder>
