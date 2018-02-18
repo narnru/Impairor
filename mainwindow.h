@@ -15,7 +15,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 private:
     QTime time;
-    QSerialPort *serial;
+    QSerialPort *serial;    
 
 public:
     explicit MainWindow(QWidget *parent = 0);
