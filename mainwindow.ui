@@ -426,6 +426,13 @@
      <height>25</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuOptional">
+    <property name="title">
+     <string>Optional</string>
+    </property>
+    <addaction name="actionUpdate_available_ports"/>
+   </widget>
+   <addaction name="menuOptional"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
@@ -436,6 +443,11 @@
    </attribute>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
+  <action name="actionUpdate_available_ports">
+   <property name="text">
+    <string>Update available ports</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
