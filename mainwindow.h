@@ -15,7 +15,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 private:
     QTime time;
-    QSerialPort *serial;    
+    QSerialPort *serial;
 
 private slots:
     void on_pushButton_Connect_TC_clicked();
@@ -24,6 +24,11 @@ private slots:
 
     QString readDataAction();
     void sendDataAction(QString data);
+
+    void showResponceData(const QString data);
+
+signals:
+    void responce(const QString data);
 
 public:
     explicit MainWindow(QWidget *parent = 0);

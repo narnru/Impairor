@@ -26,6 +26,8 @@ MainWindow::MainWindow(QWidget *parent) : // То что произойдет в
         ui->comboBoxPortName->addItem(info.portName());
     }
 
+    connect(this, SIGNAL(responce(QString)),
+            this, SLOT(showResponceData(QString)));
 
 }
 
@@ -35,7 +37,7 @@ QString MainWindow::readDataAction() //Считывание данных из б
     QByteArray temp;
 
     temp = serial->readAll();
-    while(serial->waitForReadyRead(100)) {
+    while(serial->waitForReadyRead(50)) {
         temp += serial->readAll();
     }
 
@@ -47,6 +49,12 @@ void MainWindow::sendDataAction(QString data)//Отправка данных п�
     serial->write(data.toLocal8Bit());
     return;
 }
+
+void MainWindow::showResponceData(QString data)
+{
+    ui->textLineResponce->setText(data);
+}
+
 
 void MainWindow::on_pushButton_Connect_TC_clicked()
 {
@@ -69,15 +77,20 @@ void MainWindow::on_pushButton_Connect_TC_clicked()
         serial->error(getError);
         return;
     }
-
     QString query = "*IDN?\n";
     QString answer;
+    answer = readDataAction();
+    emit responce(answer);
+
     sendDataAction(query);
     answer = readDataAction();
     if(!answer.contains("Stanford"))
     {
         scanBauds();
     }
+    sendDataAction(query);
+    answer = readDataAction();
+    emit responce(answer);
 }
 
 void MainWindow::scanBauds()
@@ -92,7 +105,7 @@ void MainWindow::scanBauds()
         serial->open(QIODevice::ReadWrite);
         sendDataAction(query);
         answer = readDataAction();
-        if(answer.contains("Stanford"))
+        if((answer.contains("Stanford")) or (answer.contains("Error")))
         {
             return;
         }
@@ -106,6 +119,7 @@ MainWindow::~MainWindow()
 {
      //delete timer;
 
+    serial->close();
     delete serial;
     delete ui; // чисти, чисти
 }
