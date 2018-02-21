@@ -5,6 +5,7 @@
 #include <QSerialPort>
 #include <QSerialPortInfo>
 #include <QTime>
+#include <QFile>
 
 namespace Ui {
 class MainWindow;
@@ -16,9 +17,15 @@ class MainWindow : public QMainWindow
 private:
     QTime time;
     QSerialPort *serial;
+    int additionalWaitTime = 50; //Надо добавить калибровку;
+    QFile file;
 
 private slots:
     void on_pushButton_Connect_TC_clicked();
+    void on_actionUpdate_available_ports_triggered();
+    void on_pushButton_Recieve_clicked();
+    void on_pushButton_Send_clicked();
+
 
     void scanBauds();
 
