@@ -1,6 +1,8 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <QWidget>
+#include <QTime>
+#include <math.h>
 
 MainWindow::MainWindow(QWidget *parent) : // То что произойдет в нулевой момент времени после запуска проги
     QMainWindow(parent),
@@ -8,14 +10,13 @@ MainWindow::MainWindow(QWidget *parent) : // То что произойдет в
 {
     ui->setupUi(this); //Хз что это
     serial = new QSerialPort(); // переменная для подключения по COM порту
-    //timer = new QTimer(this); // таймер
 
     // Заполнение ComboBox-a
     QStringList Colours;
-    Colours.push_back("black");
-    Colours.push_back("red");
-    Colours.push_back("green");
-    Colours.push_back("blue");
+    Colours.push_back("Black");
+    Colours.push_back("Red");
+    Colours.push_back("Green");
+    Colours.push_back("Blue");
     ui->comboBox_Colour->clear();
     ui->comboBox_Colour->addItems(Colours);
 
@@ -45,6 +46,7 @@ void MainWindow::on_actionUpdate_available_ports_triggered()// кнопачка 
     }
     return;
 }
+
 
 QString MainWindow::readDataAction() //Считывание данных из буффера. Если там оказалось что-то чего ты не ожидал увидеть - твои проблемы.
 {
@@ -184,7 +186,14 @@ void MainWindow::scanBauds() // функция для перебора всех 
     foreach(qint32 baud, bauds) //для всех возможных baudrates попробуем получить информацию о приборе
     {
         serial->setBaudRate(baud);
+<<<<<<< HEAD
+        serial->open(QIODevice::ReadWrite);
+        sendDataAction(query);
+        answer = readDataAction();
+        if((answer.contains("Stanford")) or (answer.contains("Error")))
+=======
         if (serial->open(QIODevice::ReadWrite))
+>>>>>>> 66e8bbc3333c1fbab1f969c24b4e18724e1e543d
         {
             sendDataAction(query);
             answer = readDataAction();

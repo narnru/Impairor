@@ -81,26 +81,6 @@
      </item>
     </layout>
    </widget>
-   <widget class="QCustomPlot" name="widget_TC" native="true">
-    <property name="geometry">
-     <rect>
-      <x>330</x>
-      <y>10</y>
-      <width>341</width>
-      <height>221</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QCustomPlot" name="widget_Power" native="true">
-    <property name="geometry">
-     <rect>
-      <x>330</x>
-      <y>240</y>
-      <width>341</width>
-      <height>221</height>
-     </rect>
-    </property>
-   </widget>
    <widget class="Line" name="line_2">
     <property name="geometry">
      <rect>
@@ -408,14 +388,34 @@
      </item>
     </layout>
    </widget>
+   <widget class="QCustomPlot" name="widget_T" native="true">
+    <property name="geometry">
+     <rect>
+      <x>370</x>
+      <y>10</y>
+      <width>371</width>
+      <height>261</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QCustomPlot" name="widget_P" native="true">
+    <property name="geometry">
+     <rect>
+      <x>370</x>
+      <y>280</y>
+      <width>371</width>
+      <height>191</height>
+     </rect>
+    </property>
+   </widget>
    <zorder>layoutWidget</zorder>
    <zorder>layoutWidget</zorder>
    <zorder>groupBox</zorder>
-   <zorder>widget_TC</zorder>
-   <zorder>widget_Power</zorder>
    <zorder>line_2</zorder>
    <zorder>groupBox_2</zorder>
    <zorder>groupBox_3</zorder>
+   <zorder>widget_T</zorder>
+   <zorder>widget_P</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
@@ -454,7 +454,7 @@
   <customwidget>
    <class>QCustomPlot</class>
    <extends>QWidget</extends>
-   <header>qcustomplot.h</header>
+   <header location="global">qcustomplot.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
