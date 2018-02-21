@@ -24,9 +24,19 @@ MainWindow::MainWindow(QWidget *parent) : // То что произойдет в
 
     connect(this, SIGNAL(responce(QString)),
             this, SLOT(showResponceData(QString)));
+
+    file.setFileName("log.txt");
+    if(!file.open(QIODevice::ReadWrite))
+    {
+        ui->textLineResponce->setText("Log file wrecked");
+    }
+    file.readAll();
+    file.write(QTime::currentTime().toString().toLocal8Bit());
+    file.write(" /n/r");
+    file.write("magic");
 }
 
-void MainWindow::on_actionUpdate_available_ports_triggered()
+void MainWindow::on_actionUpdate_available_ports_triggered()// кнопачка чтобы обновить список доступных портов
 {
     ui->comboBoxPortName->clear();
 
@@ -64,8 +74,37 @@ void MainWindow::showResponceData(QString data) // Слот для отобра�
     ui->textLineResponce->setText(data);
 }
 
+void MainWindow::on_pushButton_Recieve_clicked()//кнопачка чтобы считать данные из буфера. Нет не подождать данных. Считать из буффера
+{
+    QByteArray temp;
+    if(serial->isOpen())
+    {
+        temp = serial->readAll();
+        ui->textLineResponce->setText(QString(temp));
+    } else
+    {
+        ui->textLineResponce->setText("Connect to something first, please");
+    }
+    return;
+}
 
-void MainWindow::on_pushButton_Connect_TC_clicked()
+void MainWindow::on_pushButton_Send_clicked() // Для желающих общаться с теромоконтроллером лапками
+{
+    QString msg;
+    msg = ui->textLineSend->text();
+    msg.append('\n');
+    if(serial->isOpen())
+    {
+        serial->write(msg.toLocal8Bit());
+        showResponceData(readDataAction());
+    } else
+    {
+        ui->textLineResponce->setText("Connect to something first, please");
+    }
+    return;
+}
+
+void MainWindow::on_pushButton_Connect_TC_clicked()//кнопачка чтобы совокупить прогу и контроллер
 {
     if(ui->pushButton_Connect_TC->text() == "Connect")
         {
@@ -157,13 +196,12 @@ void MainWindow::scanBauds() // функция для перебора всех 
     return; //если не получилось то ну и ладно. Тут по хорошему нужно бы сделать возврат ошибки но мне лень
 }
 
-
-
-MainWindow::~MainWindow()
+MainWindow::~MainWindow()//При закрытии окошка
 {
      //delete timer;
-
+    file.close();
     serial->close();
     delete serial;
     delete ui; // чисти, чисти
 }
+
