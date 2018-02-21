@@ -25,15 +25,14 @@ MainWindow::MainWindow(QWidget *parent) : // То что произойдет в
     connect(this, SIGNAL(responce(QString)),
             this, SLOT(showResponceData(QString)));
 
-    file.setFileName("log.txt");
+    log_file.setFileName("log.txt");
     if(!file.open(QIODevice::ReadWrite))
     {
         ui->textLineResponce->setText("Log file wrecked");
     }
-    file.readAll();
-    file.write(QTime::currentTime().toString().toLocal8Bit());
-    file.write(" /n/r");
-    file.write("magic");
+    log_file.readAll();
+    log_file.write(QTime::currentTime().toString().toLocal8Bit());
+    log_file.write(" \n\r");
 }
 
 void MainWindow::on_actionUpdate_available_ports_triggered()// кнопачка чтобы обновить список доступных портов
@@ -72,6 +71,9 @@ void MainWindow::sendDataAction(QString data)//Отправка данных п�
 void MainWindow::showResponceData(QString data) // Слот для отображения чего нибудь в строчку responce
 {
     ui->textLineResponce->setText(data);
+    data.append('\n');
+    log_file.write(data.toLocal8Bit());
+    return;
 }
 
 void MainWindow::on_pushButton_Recieve_clicked()//кнопачка чтобы считать данные из буфера. Нет не подождать данных. Считать из буффера
@@ -176,10 +178,10 @@ void MainWindow::scanBauds() // функция для перебора всех 
     QList<qint32> bauds = QSerialPortInfo::standardBaudRates(); //костыль ибо мне лень делать нормальный список
     bauds.append(qint32(230400)); //это извращение увидел в настройках контроллера
 
-    QString query = "*IDN?\n";
+    QString query = "\n *IDN?\n";//первый \n призван почистить все накопившееся дерьмо на входе контроллера
     QString answer;
 
-    foreach(qint32 baud, bauds) //для всех возможных baud попробуем получить информацию о приборе
+    foreach(qint32 baud, bauds) //для всех возможных baudrates попробуем получить информацию о приборе
     {
         serial->setBaudRate(baud);
         if (serial->open(QIODevice::ReadWrite))
@@ -187,7 +189,7 @@ void MainWindow::scanBauds() // функция для перебора всех 
             sendDataAction(query);
             answer = readDataAction();
 
-            if((answer.contains("Stanford")) or (answer.contains("Error"))) //если ответ нормальный или что более вероятно нормальный но не тот то выйдем из сканирования
+            if(answer.contains("Stanford")) //если ответ нормальный то выйдем из сканирования
             {
                 return;
             }
@@ -199,7 +201,7 @@ void MainWindow::scanBauds() // функция для перебора всех 
 MainWindow::~MainWindow()//При закрытии окошка
 {
      //delete timer;
-    file.close();
+    log_file.close();
     serial->close();
     delete serial;
     delete ui; // чисти, чисти
