@@ -27,7 +27,7 @@ MainWindow::MainWindow(QWidget *parent) : // То что произойдет в
             this, SLOT(showResponceData(QString)));
 
     log_file.setFileName("log.txt");
-    if(!file.open(QIODevice::ReadWrite))
+    if(!log_file.open(QIODevice::ReadWrite))
     {
         ui->textLineResponce->setText("Log file wrecked");
     }
@@ -186,14 +186,7 @@ void MainWindow::scanBauds() // функция для перебора всех 
     foreach(qint32 baud, bauds) //для всех возможных baudrates попробуем получить информацию о приборе
     {
         serial->setBaudRate(baud);
-<<<<<<< HEAD
-        serial->open(QIODevice::ReadWrite);
-        sendDataAction(query);
-        answer = readDataAction();
-        if((answer.contains("Stanford")) or (answer.contains("Error")))
-=======
         if (serial->open(QIODevice::ReadWrite))
->>>>>>> 66e8bbc3333c1fbab1f969c24b4e18724e1e543d
         {
             sendDataAction(query);
             answer = readDataAction();
