@@ -3,6 +3,7 @@
 #include <QWidget>
 #include <QTime>
 #include <math.h>
+#include <iostream>
 
 MainWindow::MainWindow(QWidget *parent) : // То что произойдет в нулевой момент времени при создании окошка
     QMainWindow(parent),
@@ -22,7 +23,6 @@ MainWindow::MainWindow(QWidget *parent) : // То что произойдет в
 
     on_actionUpdate_available_ports_triggered();// Получение списка доступных портов
 
-
     connect(this, SIGNAL(responce(QString)),
             this, SLOT(showResponceData(QString)));
 
@@ -34,7 +34,15 @@ MainWindow::MainWindow(QWidget *parent) : // То что произойдет в
     log_file.readAll();
     log_file.write(QTime::currentTime().toString().toLocal8Bit());
     log_file.write(" \n");
+
+    ui->widget_T->xAxis->setLabel("Time");
+    ui->widget_T->yAxis->setLabel("Value");
+    ui->widget_T->yAxis->setRange(-1.5, 1.5);
+    ui->widget_T->clearGraphs();
+    ui->widget_T->addGraph();
 }
+
+
 
 void MainWindow::on_actionUpdate_available_ports_triggered()// кнопачка чтобы обновить список доступных портов
 {
@@ -46,7 +54,6 @@ void MainWindow::on_actionUpdate_available_ports_triggered()// кнопачка 
     }
     return;
 }
-
 
 QString MainWindow::readDataAction() //Считывание данных из буффера + ожидание новых данных. Если там оказалось что-то чего ты не ожидал увидеть - твои проблемы.
 {
@@ -208,3 +215,36 @@ MainWindow::~MainWindow()//При закрытии окошка
     delete ui; // чисти, чисти
 }
 
+
+void MainWindow::on_checkBox_1_toggled(bool checked)    //строить график, если checkBox нажат
+{
+    this->run = ui->checkBox_1->isChecked();
+
+    if (checkBox_1_first == 1)
+    {
+        timeStart = QDateTime::currentDateTime().toMSecsSinceEpoch()/1000.0;
+        checkBox_1_first++;
+    }
+    double currentTime = 0;
+    double value = 0;
+
+    while(run)
+    {
+        currentTime = QDateTime::currentDateTime().toMSecsSinceEpoch()/1000.0 - timeStart;
+        value = sin(currentTime);
+        ui->widget_T->graph(0)->addData(currentTime, value);
+        QApplication::processEvents(QEventLoop::AllEvents, 5);
+
+        ui->widget_T->xAxis->setRange(0, 40);
+        ui->widget_T->replot();
+    }
+
+    return;
+}
+
+void MainWindow::Plot()
+{
+
+
+
+}

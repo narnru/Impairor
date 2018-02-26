@@ -19,23 +19,26 @@ private:
     QSerialPort *serial;
     int additionalWaitTime = 50; //Надо добавить калибровку
     QFile log_file;
+    double timeStart = 0;
+    int checkBox_1_first = 1;
+    bool run = false;
 
 private slots:
     void on_pushButton_Connect_TC_clicked();
     void on_actionUpdate_available_ports_triggered();
     void on_pushButton_Recieve_clicked();
     void on_pushButton_Send_clicked();
-
-
     void scanBauds();
-
     QString readDataAction();
     void sendDataAction(QString data);
-
     void showResponceData(const QString data);
+    void on_checkBox_1_toggled(bool checked);
+    void Plot();
+
 
 signals:
     void responce(const QString data);
+
 
 public:
     explicit MainWindow(QWidget *parent = 0);

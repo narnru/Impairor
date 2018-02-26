@@ -70,7 +70,7 @@
       </widget>
      </item>
      <item row="0" column="0">
-      <widget class="QCheckBox" name="checkBox">
+      <widget class="QCheckBox" name="checkBox_1">
        <property name="text">
         <string/>
        </property>
@@ -423,7 +423,7 @@
      <x>0</x>
      <y>0</y>
      <width>759</width>
-     <height>25</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuOptional">
@@ -454,7 +454,7 @@
   <customwidget>
    <class>QCustomPlot</class>
    <extends>QWidget</extends>
-   <header location="global">qcustomplot.h</header>
+   <header>qcustomplot.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
