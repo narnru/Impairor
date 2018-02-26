@@ -4,7 +4,7 @@
 #include <QTime>
 #include <math.h>
 
-MainWindow::MainWindow(QWidget *parent) : // То что произойдет в нулевой момент времени после запуска проги
+MainWindow::MainWindow(QWidget *parent) : // То что произойдет в нулевой момент времени при создании окошка
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
@@ -26,22 +26,21 @@ MainWindow::MainWindow(QWidget *parent) : // То что произойдет в
     connect(this, SIGNAL(responce(QString)),
             this, SLOT(showResponceData(QString)));
 
-    file.setFileName("log.txt");
-    if(!file.open(QIODevice::ReadWrite))
+    log_file.setFileName("log.txt");
+    if(!log_file.open(QIODevice::ReadWrite))
     {
         ui->textLineResponce->setText("Log file wrecked");
     }
-    file.readAll();
-    file.write(QTime::currentTime().toString().toLocal8Bit());
-    file.write(" /n/r");
-    file.write("magic");
+    log_file.readAll();
+    log_file.write(QTime::currentTime().toString().toLocal8Bit());
+    log_file.write(" \n");
 }
 
 void MainWindow::on_actionUpdate_available_ports_triggered()// кнопачка чтобы обновить список доступных портов
 {
     ui->comboBoxPortName->clear();
 
-    foreach (const QSerialPortInfo &info, QSerialPortInfo::availablePorts())
+    foreach (const QSerialPortInfo &info, QSerialPortInfo::availablePorts()) // запрос компу про доступные порты
     {
         ui->comboBoxPortName->addItem(info.portName());
     }
@@ -49,7 +48,7 @@ void MainWindow::on_actionUpdate_available_ports_triggered()// кнопачка 
 }
 
 
-QString MainWindow::readDataAction() //Считывание данных из буффера. Если там оказалось что-то чего ты не ожидал увидеть - твои проблемы.
+QString MainWindow::readDataAction() //Считывание данных из буффера + ожидание новых данных. Если там оказалось что-то чего ты не ожидал увидеть - твои проблемы.
 {
     QByteArray temp;
 
@@ -71,9 +70,12 @@ void MainWindow::sendDataAction(QString data)//Отправка данных п�
     return;
 }
 
-void MainWindow::showResponceData(QString data) // Слот для отображения чего нибудь в строчку responce
+void MainWindow::showResponceData(QString data) // Слот для отображения чего нибудь в строчку responce и лог файл
 {
     ui->textLineResponce->setText(data);
+    data.append('\n');
+    log_file.write(data.toLocal8Bit());
+    return;
 }
 
 void MainWindow::on_pushButton_Recieve_clicked()//кнопачка чтобы считать данные из буфера. Нет не подождать данных. Считать из буффера
@@ -135,8 +137,6 @@ void MainWindow::on_pushButton_Connect_TC_clicked()//кнопачка чтобы
 
         QString query = "*IDN?\n";  //команда запроса прибору от Stanford Research Systems чтобы узнать что он такое
         QString answer;
-    //    answer = readDataAction(); //проверка что в буффере нет лишнего
-    //    emit responce(answer); //Если есть то покажи интересно жи
 
         sendDataAction(query); // запрос прибору...
         answer = readDataAction(); //попытка получить ответ
@@ -178,10 +178,10 @@ void MainWindow::scanBauds() // функция для перебора всех 
     QList<qint32> bauds = QSerialPortInfo::standardBaudRates(); //костыль ибо мне лень делать нормальный список
     bauds.append(qint32(230400)); //это извращение увидел в настройках контроллера
 
-    QString query = "*IDN?\n";
+    QString query = "\n *IDN?\n";//первый \n призван почистить все накопившееся дерьмо на входе контроллера
     QString answer;
 
-    foreach(qint32 baud, bauds) //для всех возможных baud попробуем получить информацию о приборе
+    foreach(qint32 baud, bauds) //для всех возможных baudrates попробуем получить информацию о приборе
     {
         serial->setBaudRate(baud);
         if (serial->open(QIODevice::ReadWrite))
@@ -189,7 +189,7 @@ void MainWindow::scanBauds() // функция для перебора всех 
             sendDataAction(query);
             answer = readDataAction();
 
-            if((answer.contains("Stanford")) or (answer.contains("Error"))) //если ответ нормальный или что более вероятно нормальный но не тот то выйдем из сканирования
+            if(answer.contains("Stanford")) //если ответ нормальный то выйдем из сканирования
             {
                 return;
             }
@@ -201,7 +201,8 @@ void MainWindow::scanBauds() // функция для перебора всех 
 MainWindow::~MainWindow()//При закрытии окошка
 {
      //delete timer;
-    file.close();
+    log_file.write("Closed\n");
+    log_file.close();
     serial->close();
     delete serial;
     delete ui; // чисти, чисти

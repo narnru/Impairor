@@ -17,8 +17,8 @@ class MainWindow : public QMainWindow
 private:
     QTime time;
     QSerialPort *serial;
-    int additionalWaitTime = 50; //Надо добавить калибровку;
-    QFile file;
+    int additionalWaitTime = 50; //Надо добавить калибровку
+    QFile log_file;
 
 private slots:
     void on_pushButton_Connect_TC_clicked();
