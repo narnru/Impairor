@@ -4,7 +4,7 @@
 #include <QTime>
 #include <math.h>
 
-MainWindow::MainWindow(QWidget *parent) : // То что произойдет в нулевой момент времени после запуска проги
+MainWindow::MainWindow(QWidget *parent) : // То что произойдет в нулевой момент времени при создании окошка
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
@@ -33,14 +33,14 @@ MainWindow::MainWindow(QWidget *parent) : // То что произойдет в
     }
     log_file.readAll();
     log_file.write(QTime::currentTime().toString().toLocal8Bit());
-    log_file.write(" \n\r");
+    log_file.write(" \n");
 }
 
 void MainWindow::on_actionUpdate_available_ports_triggered()// кнопачка чтобы обновить список доступных портов
 {
     ui->comboBoxPortName->clear();
 
-    foreach (const QSerialPortInfo &info, QSerialPortInfo::availablePorts())
+    foreach (const QSerialPortInfo &info, QSerialPortInfo::availablePorts()) // запрос компу про доступные порты
     {
         ui->comboBoxPortName->addItem(info.portName());
     }
@@ -48,7 +48,7 @@ void MainWindow::on_actionUpdate_available_ports_triggered()// кнопачка 
 }
 
 
-QString MainWindow::readDataAction() //Считывание данных из буффера. Если там оказалось что-то чего ты не ожидал увидеть - твои проблемы.
+QString MainWindow::readDataAction() //Считывание данных из буффера + ожидание новых данных. Если там оказалось что-то чего ты не ожидал увидеть - твои проблемы.
 {
     QByteArray temp;
 
@@ -70,7 +70,7 @@ void MainWindow::sendDataAction(QString data)//Отправка данных п�
     return;
 }
 
-void MainWindow::showResponceData(QString data) // Слот для отображения чего нибудь в строчку responce
+void MainWindow::showResponceData(QString data) // Слот для отображения чего нибудь в строчку responce и лог файл
 {
     ui->textLineResponce->setText(data);
     data.append('\n');
@@ -137,8 +137,6 @@ void MainWindow::on_pushButton_Connect_TC_clicked()//кнопачка чтобы
 
         QString query = "*IDN?\n";  //команда запроса прибору от Stanford Research Systems чтобы узнать что он такое
         QString answer;
-    //    answer = readDataAction(); //проверка что в буффере нет лишнего
-    //    emit responce(answer); //Если есть то покажи интересно жи
 
         sendDataAction(query); // запрос прибору...
         answer = readDataAction(); //попытка получить ответ
@@ -203,6 +201,7 @@ void MainWindow::scanBauds() // функция для перебора всех 
 MainWindow::~MainWindow()//При закрытии окошка
 {
      //delete timer;
+    log_file.write("Closed\n");
     log_file.close();
     serial->close();
     delete serial;
