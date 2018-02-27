@@ -59,7 +59,7 @@ QString MainWindow::readDataAction() //Считывание данных из б
     QByteArray temp;
 
     temp = serial->readAll();
-    if(serial->waitForReadyRead(50)) {
+    if(serial->waitForReadyRead(100)) {
         temp += serial->readAll();
         while(serial->waitForReadyRead(additionalWaitTime))
         {
@@ -141,7 +141,7 @@ void MainWindow::on_pushButton_Connect_TC_clicked()//кнопачка чтобы
             return; // если попытка подключения умерла на взлете
         }
 
-        QString query = "*IDN?\n";  //команда запроса прибору от Stanford Research Systems чтобы узнать что он такое
+        QString query = "\n *IDN?\n";  //команда запроса прибору от Stanford Research Systems чтобы узнать что он такое
         QString answer;
 
         sendDataAction(query); // запрос прибору...
@@ -181,23 +181,44 @@ void MainWindow::on_pushButton_Connect_TC_clicked()//кнопачка чтобы
 
 void MainWindow::scanBauds() // функция для перебора всех возможных baudrate, будет смешно если она случайно подключится не к стэндфордскому прибору.
 {
-    QList<qint32> bauds = QSerialPortInfo::standardBaudRates(); //костыль ибо мне лень делать нормальный список
+    QList<qint32> bauds;
+    bauds.append(QSerialPort::Baud19200);
+    bauds.append(QSerialPort::Baud4800);
+    bauds.append(QSerialPort::Baud1200);
+    bauds.append(QSerialPort::Baud2400);
+    bauds.append(QSerialPort::Baud38400);
+    bauds.append(QSerialPort::Baud57600);
+    bauds.append(QSerialPort::Baud115200);
     bauds.append(qint32(230400)); //это извращение увидел в настройках контроллера
 
-    QString query = "\n *IDN?\n";//первый \n призван почистить все накопившееся дерьмо на входе контроллера
+    QString query = "\n *IDN?\n";//первый \n призван почистить все накопившееся на входе контроллера
     QString answer;
 
     foreach(qint32 baud, bauds) //для всех возможных baudrates попробуем получить информацию о приборе
     {
         serial->setBaudRate(baud);
-        if (serial->open(QIODevice::ReadWrite))
+        QThread::msleep(1000); //КОСТЫЛЬ. Я НЕ ЗНАЮ ПОЧЕМУ К СТАРОМУ КОНТРОЛЛЕРУ ОН БЕЗ ЭТОГО КРИВО ПОДКЛЮЧАЕТСЯ
+        if (serial->isOpen())
         {
             sendDataAction(query);
+            QApplication::processEvents();
             answer = readDataAction();
 
             if(answer.contains("Stanford")) //если ответ нормальный то выйдем из сканирования
             {
                 return;
+            }
+        } else
+        {
+            if(serial->open(QIODevice::ReadWrite))
+            {
+                sendDataAction(query);
+                answer = readDataAction();
+
+                if(answer.contains("Stanford")) //если ответ нормальный то выйдем из сканирования
+                {
+                    return;
+                }
             }
         }
     }
