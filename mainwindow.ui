@@ -316,10 +316,6 @@
       </item>
      </layout>
     </widget>
-    <zorder>horizontalLayoutWidget_4</zorder>
-    <zorder>groupBox_2</zorder>
-    <zorder>groupBox_2</zorder>
-    <zorder>groupBox_2</zorder>
    </widget>
    <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
@@ -633,11 +629,6 @@
          <string>Colour</string>
         </property>
        </item>
-       <item>
-        <property name="text">
-         <string>Black</string>
-        </property>
-       </item>
       </widget>
      </item>
      <item row="0" column="1">
@@ -686,8 +677,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>759</width>
-     <height>25</height>
+     <width>819</width>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuOptional">

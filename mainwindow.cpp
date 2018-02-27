@@ -290,11 +290,16 @@ void MainWindow::on_checkBox_1_toggled(bool checked)    //строить гра�
     while(run)
     {
         currentTime = QDateTime::currentDateTime().toMSecsSinceEpoch()/1000.0 - timeStart;
-        value = sin(currentTime);
+        QString ChannelName = ui->comboBox_OutPut_1->currentText();
+        ChannelName.append(".value?");
+        sendDataAction(ChannelName);
+        QString recieve = readDataAction();
+        value = recieve.toDouble();
         ui->widget_T->graph(0)->addData(currentTime, value);
         QApplication::processEvents(QEventLoop::AllEvents, 5);
-
-        ui->widget_T->xAxis->setRange(0, 40);
+        ui->lineEdit_3->setText(recieve);
+        ui->lineEdit_3->update();
+        ui->widget_T->rescaleAxes();
         ui->widget_T->replot();
     }
 
@@ -348,3 +353,4 @@ void MainWindow::on_checkBox_2_toggled(bool checked)
 
     return;
 }
+
