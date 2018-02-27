@@ -54,6 +54,40 @@ void MainWindow::on_actionUpdate_available_ports_triggered()// кнопачка 
     return;
 }
 
+void MainWindow::on_actionCalibrate_wait_time_triggered()// кнопачка чтобы попытаться откалибровать время
+{
+    if(serial->isOpen())
+    {
+        QString query = "*IDN?\n";
+        QString fullAnswer;
+        QString answer;
+
+        readDataAction();
+        sendDataAction(query);
+        fullAnswer = readDataAction();
+        answer = fullAnswer;
+
+        while(answer  == fullAnswer)
+        {
+            sendDataAction(query);
+            answer = readDataAction();
+            additionalWaitTime -= 1;
+
+            if (additionalWaitTime == 1)
+            {
+                break;
+            }
+            QApplication::processEvents();
+
+        }
+        additionalWaitTime += 5;
+    } else
+    {
+        emit responce("Connect to smth first, please.");
+    }
+    return;
+}
+
 QString MainWindow::readDataAction() //Считывание данных из буффера + ожидание новых данных. Если там оказалось что-то чего ты не ожидал увидеть - твои проблемы.
 {
     QByteArray temp;

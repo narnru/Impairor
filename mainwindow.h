@@ -34,6 +34,7 @@ private slots:
     void showResponceData(const QString data);
     void on_checkBox_1_toggled(bool checked);
     void Plot();
+    void on_actionCalibrate_wait_time_triggered();
 
 
 signals:
