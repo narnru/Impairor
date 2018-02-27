@@ -26,22 +26,21 @@ MainWindow::MainWindow(QWidget *parent) : // То что произойдет в
     connect(this, SIGNAL(responce(QString)),
             this, SLOT(showResponceData(QString)));
 
-    log_file.setFileName("log.txt");
+    log_file.setFileName("log.txt"); //Создание лог файла
     if(!log_file.open(QIODevice::ReadWrite))
     {
         ui->textLineResponce->setText("Log file wrecked");
     }
-    log_file.readAll();
-    log_file.write(QTime::currentTime().toString().toLocal8Bit());
+    log_file.readAll(); // перемещение текущей позиции в конец файла
+    log_file.write(QTime::currentTime().toString().toLocal8Bit()); // начальная строчка с указанем текущего времени(надо сделать еще и дату)
     log_file.write(" \n");
 
-    ui->widget_T->xAxis->setLabel("Time");
+    ui->widget_T->xAxis->setLabel("Time"); // Оси графика для температуры
     ui->widget_T->yAxis->setLabel("Value");
-    ui->widget_T->yAxis->setRange(-1.5, 1.5);
+    ui->widget_T->yAxis->setRange(-1.5, 1.5); // временно
     ui->widget_T->clearGraphs();
     ui->widget_T->addGraph();
 }
-
 
 
 void MainWindow::on_actionUpdate_available_ports_triggered()// кнопачка чтобы обновить список доступных портов
