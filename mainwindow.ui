@@ -686,8 +686,13 @@
     <rect>
      <x>0</x>
      <y>0</y>
+<<<<<<< HEAD
      <width>819</width>
      <height>21</height>
+=======
+     <width>759</width>
+     <height>25</height>
+>>>>>>> c242b9992d0b0cccb81fddf6b4ce18027a98d6bd
     </rect>
    </property>
    <widget class="QMenu" name="menuOptional">
@@ -695,6 +700,7 @@
      <string>Optional</string>
     </property>
     <addaction name="actionUpdate_available_ports"/>
+    <addaction name="actionCalibrate_wait_time"/>
    </widget>
    <addaction name="menuOptional"/>
   </widget>
@@ -710,6 +716,11 @@
   <action name="actionUpdate_available_ports">
    <property name="text">
     <string>Update available ports</string>
+   </property>
+  </action>
+  <action name="actionCalibrate_wait_time">
+   <property name="text">
+    <string>Calibrate wait time</string>
    </property>
   </action>
  </widget>

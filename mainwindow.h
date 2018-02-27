@@ -34,7 +34,11 @@ private slots:
     void showResponceData(const QString data);
     void on_checkBox_1_toggled(bool checked);
     void Plot();
+<<<<<<< HEAD
     void ReadNames(); //1. нужно ли делать слотом? void?  аргументы?
+=======
+    void on_actionCalibrate_wait_time_triggered();
+>>>>>>> c242b9992d0b0cccb81fddf6b4ce18027a98d6bd
 
 
 signals:
