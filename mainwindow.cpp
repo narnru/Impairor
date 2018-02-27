@@ -106,6 +106,7 @@ QString MainWindow::readDataAction() //Считывание данных из б
 
 void MainWindow::sendDataAction(QString data)//Отправка данных пациенту. Ну или запросов. Ну или порнографии. Мало ли на что у меня совести хватит.
 {
+    data.append('\n');
     serial->write(data.toLocal8Bit());
     return;
 }
@@ -136,10 +137,9 @@ void MainWindow::on_pushButton_Send_clicked() // Для желающих общ�
 {
     QString msg;
     msg = ui->textLineSend->text();
-    msg.append('\n');
     if(serial->isOpen())
     {
-        serial->write(msg.toLocal8Bit());
+        sendDataAction(msg);
         showResponceData(readDataAction());
     } else
     {
@@ -175,7 +175,7 @@ void MainWindow::on_pushButton_Connect_TC_clicked()//кнопачка чтобы
             return; // если попытка подключения умерла на взлете
         }
 
-        QString query = "\n *IDN?\n";  //команда запроса прибору от Stanford Research Systems чтобы узнать что он такое
+        QString query = "\n *IDN?";  //команда запроса прибору от Stanford Research Systems чтобы узнать что он такое
         QString answer;
 
         sendDataAction(query); // запрос прибору...
@@ -202,6 +202,7 @@ void MainWindow::on_pushButton_Connect_TC_clicked()//кнопачка чтобы
         } else
         {
             ui->pushButton_Connect_TC->setText("Disconnect");
+            ReadNames();
             return;
         }
     } else //Дисконнект
@@ -225,7 +226,7 @@ void MainWindow::scanBauds() // функция для перебора всех 
     bauds.append(QSerialPort::Baud115200);
     bauds.append(qint32(230400)); //это извращение увидел в настройках контроллера
 
-    QString query = "\n *IDN?\n";//первый \n призван почистить все накопившееся на входе контроллера
+    QString query = "\n *IDN?";//первый \n призван почистить все накопившееся на входе контроллера
     QString answer;
 
     foreach(qint32 baud, bauds) //для всех возможных baudrates попробуем получить информацию о приборе
