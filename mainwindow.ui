@@ -686,13 +686,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-<<<<<<< HEAD
-     <width>819</width>
-     <height>21</height>
-=======
      <width>759</width>
      <height>25</height>
->>>>>>> c242b9992d0b0cccb81fddf6b4ce18027a98d6bd
     </rect>
    </property>
    <widget class="QMenu" name="menuOptional">
