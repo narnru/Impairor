@@ -18,8 +18,8 @@ MainWindow::MainWindow(QWidget *parent) : // То что произойдет в
     Colours.push_back("Red");
     Colours.push_back("Green");
     Colours.push_back("Blue");
-    ui->comboBox_Colour->clear();
-    ui->comboBox_Colour->addItems(Colours);
+    ui->comboBox_Colour_1->clear();
+    ui->comboBox_Colour_1->addItems(Colours);
 
     on_actionUpdate_available_ports_triggered();// Получение списка доступных портов
 
@@ -267,4 +267,16 @@ void MainWindow::Plot()
 
 
 
+}
+
+
+void MainWindow::ReadNames()
+{
+    QString message = "getOutput.Names";
+    sendDataAction(message);
+    QString reply = readDataAction();
+    QStringList NameList;
+    NameList = reply.split(',');
+    ui->comboBox_OutPut_1->clear();
+    ui->comboBox_OutPut_1->addItems(NameList);
 }

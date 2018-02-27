@@ -34,6 +34,7 @@ private slots:
     void showResponceData(const QString data);
     void on_checkBox_1_toggled(bool checked);
     void Plot();
+    void ReadNames(); //1. нужно ли делать слотом? void?  аргументы?
 
 
 signals:
