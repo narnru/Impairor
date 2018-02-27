@@ -20,7 +20,9 @@ private:
     int additionalWaitTime = 50; //Надо добавить калибровку
     QFile log_file;
     double timeStart = 0;
-    int checkBox_1_first = 1;
+    int checkBox_1_first = 0;
+    int checkBox_2_first = 0;
+    int start = 0;
     bool run = false;
 
 private slots:
@@ -34,9 +36,11 @@ private slots:
     void showResponceData(const QString data);
     void on_checkBox_1_toggled(bool checked);
     void Plot();
-    void ReadNames(); //1. нужно ли делать слотом? void?  аргументы?
+    void ReadNames();
     void on_actionCalibrate_wait_time_triggered();
 
+
+    void on_checkBox_2_toggled(bool checked);
 
 signals:
     void responce(const QString data);

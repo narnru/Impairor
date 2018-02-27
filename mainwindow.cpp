@@ -39,7 +39,7 @@ MainWindow::MainWindow(QWidget *parent) : // То что произойдет в
     ui->widget_T->yAxis->setLabel("Value");
     ui->widget_T->yAxis->setRange(-1.5, 1.5); // временно
     ui->widget_T->clearGraphs();
-    ui->widget_T->addGraph();
+
 }
 
 
@@ -273,10 +273,14 @@ MainWindow::~MainWindow()//При закрытии окошка
 void MainWindow::on_checkBox_1_toggled(bool checked)    //строить график, если checkBox нажат
 {
     this->run = ui->checkBox_1->isChecked();
-
-    if (checkBox_1_first == 1)
+    if (start == 0)
     {
         timeStart = QDateTime::currentDateTime().toMSecsSinceEpoch()/1000.0;
+        start ++;
+    }
+    if (checkBox_1_first == 0)
+    {
+        ui->widget_T->addGraph();
         checkBox_1_first++;
     }
     double currentTime = 0;
@@ -303,7 +307,6 @@ void MainWindow::Plot()
 
 }
 
-
 void MainWindow::ReadNames()
 {
     QString message = "getOutput.Names";
@@ -313,4 +316,34 @@ void MainWindow::ReadNames()
     NameList = reply.split(',');
     ui->comboBox_OutPut_1->clear();
     ui->comboBox_OutPut_1->addItems(NameList);
+}
+
+void MainWindow::on_checkBox_2_toggled(bool checked)
+{
+    this->run = ui->checkBox_2->isChecked();
+    if (start == 0)
+    {
+        timeStart = QDateTime::currentDateTime().toMSecsSinceEpoch()/1000.0;
+        start ++;
+    }
+    if (checkBox_2_first == 0)
+    {
+        ui->widget_T->addGraph();
+        checkBox_2_first++;
+    }
+    double currentTime = 0;
+    double value = 0;
+
+    while(run)
+    {
+        currentTime = QDateTime::currentDateTime().toMSecsSinceEpoch()/1000.0 - timeStart;
+        value = cos(currentTime);
+        ui->widget_T->graph(1)->addData(currentTime, value);
+        QApplication::processEvents(QEventLoop::AllEvents, 5);
+
+        ui->widget_T->xAxis->setRange(0, 40);
+        ui->widget_T->replot();
+    }
+
+    return;
 }
