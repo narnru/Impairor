@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT          += core gui serialport
+QT          += core gui serialport testlib
 
 CONFIG   += c++11
 

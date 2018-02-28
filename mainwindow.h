@@ -6,6 +6,7 @@
 #include <QSerialPortInfo>
 #include <QTime>
 #include <QFile>
+#include <QTest>
 
 namespace Ui {
 class MainWindow;

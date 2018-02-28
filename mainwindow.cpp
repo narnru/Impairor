@@ -4,6 +4,7 @@
 #include <QTime>
 #include <math.h>
 #include <iostream>
+#include <QEventLoop>
 
 MainWindow::MainWindow(QWidget *parent) : // То что произойдет в нулевой момент времени при создании окошка
     QMainWindow(parent),
@@ -232,7 +233,7 @@ void MainWindow::scanBauds() // функция для перебора всех 
     foreach(qint32 baud, bauds) //для всех возможных baudrates попробуем получить информацию о приборе
     {
         serial->setBaudRate(baud);
-        QThread::msleep(1000); //КОСТЫЛЬ. Я НЕ ЗНАЮ ПОЧЕМУ К СТАРОМУ КОНТРОЛЛЕРУ ОН БЕЗ ЭТОГО КРИВО ПОДКЛЮЧАЕТСЯ
+        QTest::qWait(1000); //КОСТЫЛЬ. Я НЕ ЗНАЮ ПОЧЕМУ К СТАРОМУ КОНТРОЛЛЕРУ ОН БЕЗ ЭТОГО КРИВО ПОДКЛЮЧАЕТСЯ
         if (serial->isOpen())
         {
             sendDataAction(query);
@@ -274,6 +275,9 @@ MainWindow::~MainWindow()//При закрытии окошка
 void MainWindow::on_checkBox_1_toggled(bool checked)    //строить график, если checkBox нажат
 {
     this->run = ui->checkBox_1->isChecked();
+
+    QEventLoop brokenleg;
+
     if (start == 0)
     {
         timeStart = QDateTime::currentDateTime().toMSecsSinceEpoch()/1000.0;
@@ -286,23 +290,36 @@ void MainWindow::on_checkBox_1_toggled(bool checked)    //строить гра�
     }
     double currentTime = 0;
     double value = 0;
-
-    while(run)
+    if(serial->isOpen())
     {
-        currentTime = QDateTime::currentDateTime().toMSecsSinceEpoch()/1000.0 - timeStart;
-        QString ChannelName = ui->comboBox_OutPut_1->currentText();
-        ChannelName.append(".value?");
-        sendDataAction(ChannelName);
-        QString recieve = readDataAction();
-        value = recieve.toDouble();
-        ui->widget_T->graph(0)->addData(currentTime, value);
-        QApplication::processEvents(QEventLoop::AllEvents, 5);
-        ui->lineEdit_3->setText(recieve);
-        ui->lineEdit_3->update();
-        ui->widget_T->rescaleAxes();
-        ui->widget_T->replot();
+        while(run)
+        {
+            currentTime = QDateTime::currentDateTime().toMSecsSinceEpoch()/1000.0 - timeStart;
+            QString ChannelName = ui->comboBox_OutPut_1->currentText();
+            ChannelName.append(".value?");
+            sendDataAction(ChannelName);
+            QString recieve = readDataAction();
+            value = recieve.toDouble();
+            ui->widget_T->graph(0)->addData(currentTime, value);
+            QApplication::processEvents(QEventLoop::AllEvents, 5);
+            ui->lineEdit_3->setText(recieve);
+            ui->lineEdit_3->update();
+            ui->widget_T->rescaleAxes();
+            ui->widget_T->replot();
+        }
+    } else
+    {
+        while(run)
+        {
+            currentTime = QDateTime::currentDateTime().toMSecsSinceEpoch()/1000.0 - timeStart;
+            value = sin(currentTime);
+            ui->widget_T->graph(0)->addData(currentTime, value);
+            brokenleg.processEvents(QEventLoop::AllEvents, 5);
+            ui->widget_T->xAxis->setRange(0, 40);
+            ui->widget_T->replot();
+            QTest::qWait(5);
+        }
     }
-
     return;
 }
 
@@ -349,6 +366,7 @@ void MainWindow::on_checkBox_2_toggled(bool checked)
 
         ui->widget_T->xAxis->setRange(0, 40);
         ui->widget_T->replot();
+        QTest::qWait(5);
     }
 
     return;
