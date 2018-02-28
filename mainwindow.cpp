@@ -4,7 +4,6 @@
 #include <QTime>
 #include <math.h>
 #include <iostream>
-#include <QEventLoop>
 
 MainWindow::MainWindow(QWidget *parent) : // То что произойдет в нулевой момент времени при создании окошка
     QMainWindow(parent),
@@ -82,6 +81,7 @@ void MainWindow::on_actionCalibrate_wait_time_triggered()// кнопачка ч�
 
         }
         additionalWaitTime += 5;
+        fullAnswer = readDataAction();
     } else
     {
         emit responce("Connect to smth first, please.");
@@ -92,13 +92,15 @@ void MainWindow::on_actionCalibrate_wait_time_triggered()// кнопачка ч�
 QString MainWindow::readDataAction() //Считывание данных из буффера + ожидание новых данных. Если там оказалось что-то чего ты не ожидал увидеть - твои проблемы.
 {
     QByteArray temp;
-
-    temp = serial->readAll();
-    if(serial->waitForReadyRead(100)) {
-        temp += serial->readAll();
-        while(serial->waitForReadyRead(additionalWaitTime))
-        {
+    if (serial->isOpen())
+    {
+        temp = serial->readAll();
+        if(serial->waitForReadyRead(100)) {
             temp += serial->readAll();
+            while(serial->waitForReadyRead(additionalWaitTime))
+            {
+                temp += serial->readAll();
+            }
         }
     }
 
@@ -107,16 +109,33 @@ QString MainWindow::readDataAction() //Считывание данных из б
 
 void MainWindow::sendDataAction(QString data)//Отправка данных пациенту. Ну или запросов. Ну или порнографии. Мало ли на что у меня совести хватит.
 {
-    data.append('\n');
-    serial->write(data.toLocal8Bit());
+    if (serial->isOpen())
+    {
+        data.append('\n');
+        serial->write(data.toLocal8Bit());
+    }
     return;
 }
 
 void MainWindow::showResponceData(QString data) // Слот для отображения чего нибудь в строчку responce и лог файл
 {
     ui->textLineResponce->setText(data);
-    data.append('\n');
-    log_file.write(data.toLocal8Bit());
+    if(log_file.isOpen())
+    {
+        data.append('\n');
+        log_file.write(data.toLocal8Bit());
+    } else
+    {
+        log_file.setFileName("log.txt"); //Создание лог файла
+        if(!log_file.open(QIODevice::ReadWrite))
+        {
+            ui->textLineResponce->setText("Log file wrecked");
+        }
+        log_file.readAll(); // перемещение текущей позиции в конец файла
+        log_file.write(QTime::currentTime().toString().toLocal8Bit()); // начальная строчка с указанем текущего времени(надо сделать еще и дату)
+        log_file.write("It had wrecked \n");
+
+    }
     return;
 }
 
@@ -182,7 +201,7 @@ void MainWindow::on_pushButton_Connect_TC_clicked()//кнопачка чтобы
         sendDataAction(query); // запрос прибору...
         answer = readDataAction(); //попытка получить ответ
 
-        if(!answer.contains("Stanford")) // если ответ не такой как хотелось бы то попробуем перебрать измениямые внутри прибора характеристики
+        if(!answer.contains("Stanford")) // если ответ не такой как хотелось бы то попробуем перебрать изменяемые внутри прибора характеристики
         {
             scanBauds();
             sendDataAction(query);
@@ -276,7 +295,6 @@ void MainWindow::on_checkBox_1_toggled(bool checked)    //строить гра�
 {
     this->run = ui->checkBox_1->isChecked();
 
-    QEventLoop brokenleg;
 
     if (start == 0)
     {
@@ -314,7 +332,7 @@ void MainWindow::on_checkBox_1_toggled(bool checked)    //строить гра�
             currentTime = QDateTime::currentDateTime().toMSecsSinceEpoch()/1000.0 - timeStart;
             value = sin(currentTime);
             ui->widget_T->graph(0)->addData(currentTime, value);
-            brokenleg.processEvents(QEventLoop::AllEvents, 5);
+            QApplication::processEvents(QEventLoop::AllEvents, 5);
             ui->widget_T->xAxis->setRange(0, 40);
             ui->widget_T->replot();
             QTest::qWait(5);
@@ -334,9 +352,13 @@ void MainWindow::ReadNames()
 {
     QString message = "getOutput.Names";
     sendDataAction(message);
+
     QString reply = readDataAction();
     QStringList NameList;
+
+    reply.remove(QChar('\n'), Qt::CaseInsensitive);
     NameList = reply.split(',');
+
     ui->comboBox_OutPut_1->clear();
     ui->comboBox_OutPut_1->addItems(NameList);
 }
@@ -344,16 +366,19 @@ void MainWindow::ReadNames()
 void MainWindow::on_checkBox_2_toggled(bool checked)
 {
     this->run = ui->checkBox_2->isChecked();
+
     if (start == 0)
     {
         timeStart = QDateTime::currentDateTime().toMSecsSinceEpoch()/1000.0;
         start ++;
     }
+
     if (checkBox_2_first == 0)
     {
         ui->widget_T->addGraph();
         checkBox_2_first++;
     }
+
     double currentTime = 0;
     double value = 0;
 
