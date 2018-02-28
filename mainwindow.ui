@@ -159,7 +159,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="lineEdit_4">
+       <widget class="QLineEdit" name="lineEdit_power">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -659,6 +659,21 @@
      </item>
     </layout>
    </widget>
+   <widget class="QComboBox" name="comboBox_Output">
+    <property name="geometry">
+     <rect>
+      <x>700</x>
+      <y>510</y>
+      <width>75</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <item>
+     <property name="text">
+      <string>Channel</string>
+     </property>
+    </item>
+   </widget>
    <zorder>layoutWidget</zorder>
    <zorder>layoutWidget</zorder>
    <zorder>groupBox</zorder>
@@ -671,6 +686,7 @@
    <zorder>groupBox_5</zorder>
    <zorder>groupBox_6</zorder>
    <zorder>groupBox_7</zorder>
+   <zorder>comboBox_Output</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
@@ -678,7 +694,7 @@
      <x>0</x>
      <y>0</y>
      <width>819</width>
-     <height>21</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuOptional">

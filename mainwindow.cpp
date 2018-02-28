@@ -103,7 +103,6 @@ QString MainWindow::readDataAction() //Считывание данных из б
             }
         }
     }
-
     return QString(temp);
 }
 
@@ -134,7 +133,6 @@ void MainWindow::showResponceData(QString data) // Слот для отобра�
         log_file.readAll(); // перемещение текущей позиции в конец файла
         log_file.write(QTime::currentTime().toString().toLocal8Bit()); // начальная строчка с указанем текущего времени(надо сделать еще и дату)
         log_file.write("It had wrecked \n");
-
     }
     return;
 }
@@ -180,7 +178,6 @@ void MainWindow::on_pushButton_Connect_TC_clicked()//кнопачка чтобы
         serial->setBaudRate(QSerialPort::Baud9600);//дефолт. ЭТО ТРОГАТЬ МОЖНО.
         serial->setPortName(ui->comboBoxPortName->currentText()); //пока что выбирать порт будем лапками
 
-
         if (!serial->open(QIODevice::ReadWrite)) //попытка подключится с дефолтными параметрами
         {
             QSerialPort::SerialPortError getError = QSerialPort::NoError;
@@ -223,6 +220,7 @@ void MainWindow::on_pushButton_Connect_TC_clicked()//кнопачка чтобы
         {
             ui->pushButton_Connect_TC->setText("Disconnect");
             ReadNames();
+            ReadUnits();
             return;
         }
     } else //Дисконнект
@@ -286,6 +284,7 @@ MainWindow::~MainWindow()//При закрытии окошка
     log_file.write("Closed\n");
     log_file.close();
     serial->close();
+    QApplication::processEvents(QEventLoop::AllEvents, 5);
     delete serial;
     delete ui; // чисти, чисти
 }
@@ -354,13 +353,59 @@ void MainWindow::ReadNames()
     sendDataAction(message);
 
     QString reply = readDataAction();
-    QStringList NameList;
 
     reply.remove(QChar('\n'), Qt::CaseInsensitive);
+    reply.remove(QChar('\r'), Qt::CaseInsensitive);
     NameList = reply.split(',');
 
     ui->comboBox_OutPut_1->clear();
+    ui->comboBox_OutPut_2->clear();
+    ui->comboBox_OutPut_3->clear();
+    ui->comboBox_OutPut_4->clear();
+    ui->comboBox_OutPut_5->clear();
     ui->comboBox_OutPut_1->addItems(NameList);
+    ui->comboBox_OutPut_2->addItems(NameList);
+    ui->comboBox_OutPut_3->addItems(NameList);
+    ui->comboBox_OutPut_4->addItems(NameList);
+    ui->comboBox_OutPut_5->addItems(NameList);
+}
+
+void MainWindow::ReadUnits()
+{
+    QString message = "getOutput.Units";
+    sendDataAction(message);
+    int i;
+
+    QString reply = readDataAction();
+
+    reply.remove(QChar('\n'), Qt::CaseInsensitive);
+    reply.remove(QChar('\r'), Qt::CaseInsensitive);
+    UnitList = reply.split(',');
+
+    ui->comboBox_Output->clear();
+    if(UnitList.length() != NameList.length())
+    {
+        emit responce("smth gone very wrong");
+        return;
+    }
+    for(i = 0; i < UnitList.length(); i++)
+    {
+        QApplication::processEvents();
+        if (UnitList.at(i).contains("W") or UnitList.at(i).contains("A") or UnitList.at(i).contains("V"))
+        {
+            message = NameList.at(i);
+            message.append(".list");
+
+            sendDataAction(message);
+            reply = readDataAction();
+
+            if (reply.contains("pid"))
+            {
+                ui->comboBox_Output->addItem(NameList.at(i));
+            }
+        }
+    }
+    return;
 }
 
 void MainWindow::on_checkBox_2_toggled(bool checked)
@@ -395,5 +440,54 @@ void MainWindow::on_checkBox_2_toggled(bool checked)
     }
 
     return;
+}
+
+
+void MainWindow::on_pushButton_Start_Power_clicked()
+{
+    QString reply;
+    QString message;
+    float power;
+
+    if(serial->isOpen())
+    {
+        if(ui->comboBox_Output->currentText() == "")
+        {
+            emit responce("No output detected");
+        } else
+        {
+            message = ui->comboBox_Output->currentText();
+            message.append(".list");
+
+            sendDataAction(message);
+            reply = readDataAction();
+            if(reply.contains("pid"))
+            {
+                message = ui->comboBox_Output->currentText();
+                message.append(".pid.mode = off");
+                sendDataAction(message);
+                readDataAction();
+
+                message = "outputenable = on";
+                sendDataAction(message);
+                readDataAction();
+
+                message = ui->comboBox_Output->currentText();
+                message.append(".value = ");
+                reply = ui->lineEdit_power->text();
+                power = reply.toFloat();
+                message.append(QString::number(power, 'f', 2));
+                sendDataAction(message);
+                readDataAction();
+
+            }else
+            {
+                emit responce("This is not an output");
+            }
+        }
+    }else
+    {
+        emit responce("Connect to smth first, please");
+    }
 }
 

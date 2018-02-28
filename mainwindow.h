@@ -18,13 +18,16 @@ class MainWindow : public QMainWindow
 private:
     QTime time;
     QSerialPort *serial;
-    int additionalWaitTime = 50; //Надо добавить калибровку
+    int additionalWaitTime = 50;
     QFile log_file;
     double timeStart = 0;
     int checkBox_1_first = 0;
     int checkBox_2_first = 0;
     int start = 0;
     bool run = false;
+    QStringList NameList;
+    QStringList UnitList;
+
 
 private slots:
     void on_pushButton_Connect_TC_clicked();
@@ -38,10 +41,13 @@ private slots:
     void on_checkBox_1_toggled(bool checked);
     void Plot();
     void ReadNames();
+    void ReadUnits();
     void on_actionCalibrate_wait_time_triggered();
 
 
     void on_checkBox_2_toggled(bool checked);
+
+    void on_pushButton_Start_Power_clicked();
 
 signals:
     void responce(const QString data);
