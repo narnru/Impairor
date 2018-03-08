@@ -27,7 +27,8 @@ private:
     bool run = false;
     QStringList NameList;
     QStringList UnitList;
-
+    double currentTime = 0;
+    int index_1, index_2, index_3, index_4, index_5;
 
 private slots:
     void on_pushButton_Connect_TC_clicked();
@@ -38,7 +39,6 @@ private slots:
     QString readDataAction();
     void sendDataAction(QString data);
     void showResponceData(const QString data);
-    void on_checkBox_1_toggled(bool checked);
     void Plot();
     void ReadNames();
     void ReadUnits();
@@ -46,12 +46,13 @@ private slots:
 
     void pid_Scan();
 
-
-    void on_checkBox_2_toggled(bool checked);
-
     void on_pushButton_Start_Power_clicked();
 
     void on_pushButton_Start_PID_clicked();
+
+    void on_pushButton_Plot_clicked();
+
+    void on_checkBox_1_clicked();
 
 signals:
     void responce(const QString data);

@@ -63,7 +63,7 @@
       </widget>
      </item>
      <item row="0" column="3">
-      <widget class="QLabel" name="label_12">
+      <widget class="QLabel" name="label_unit_1">
        <property name="text">
         <string>C</string>
        </property>
@@ -204,9 +204,9 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>20</y>
+       <y>30</y>
        <width>291</width>
-       <height>92</height>
+       <height>78</height>
       </rect>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_6">
@@ -308,11 +308,22 @@
        </layout>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton_Start_PID">
-        <property name="text">
-         <string>Start</string>
-        </property>
-       </widget>
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <item>
+         <widget class="QPushButton" name="pushButton_Check">
+          <property name="text">
+           <string>Check</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pushButton_Start_PID">
+          <property name="text">
+           <string>Start</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
      </layout>
     </widget>
@@ -407,6 +418,7 @@
       <height>191</height>
      </rect>
     </property>
+    <zorder>horizontalLayoutWidget</zorder>
    </widget>
    <widget class="QGroupBox" name="groupBox_4">
     <property name="enabled">
@@ -454,7 +466,7 @@
       </widget>
      </item>
      <item row="0" column="3">
-      <widget class="QLabel" name="label_14">
+      <widget class="QLabel" name="label_unit_2">
        <property name="text">
         <string>C</string>
        </property>
@@ -518,7 +530,7 @@
       </widget>
      </item>
      <item row="0" column="3">
-      <widget class="QLabel" name="label_15">
+      <widget class="QLabel" name="label_unit_3">
        <property name="text">
         <string>C</string>
        </property>
@@ -582,7 +594,7 @@
       </widget>
      </item>
      <item row="0" column="3">
-      <widget class="QLabel" name="label_16">
+      <widget class="QLabel" name="label_unit_4">
        <property name="text">
         <string>C</string>
        </property>
@@ -641,7 +653,7 @@
       </widget>
      </item>
      <item row="0" column="3">
-      <widget class="QLabel" name="label_17">
+      <widget class="QLabel" name="label_unit_5">
        <property name="text">
         <string>C</string>
        </property>
@@ -674,6 +686,19 @@
      </property>
     </item>
    </widget>
+   <widget class="QPushButton" name="pushButton_Plot">
+    <property name="geometry">
+     <rect>
+      <x>700</x>
+      <y>560</y>
+      <width>75</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>PLOT</string>
+    </property>
+   </widget>
    <zorder>layoutWidget</zorder>
    <zorder>layoutWidget</zorder>
    <zorder>groupBox</zorder>
@@ -687,6 +712,7 @@
    <zorder>groupBox_6</zorder>
    <zorder>groupBox_7</zorder>
    <zorder>comboBox_Output</zorder>
+   <zorder>pushButton_Plot</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
@@ -694,7 +720,7 @@
      <x>0</x>
      <y>0</y>
      <width>819</width>
-     <height>25</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuOptional">

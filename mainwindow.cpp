@@ -291,61 +291,48 @@ MainWindow::~MainWindow()//При закрытии окошка
     delete ui; // чисти, чисти
 }
 
-void MainWindow::on_checkBox_1_toggled(bool checked)    //строить график, если checkBox нажат
-{
-    this->run = ui->checkBox_1->isChecked();
-
-
-    if (start == 0)
-    {
-        timeStart = QDateTime::currentDateTime().toMSecsSinceEpoch()/1000.0;
-        start ++;
-    }
-    if (checkBox_1_first == 0)
-    {
-        ui->widget_T->addGraph();
-        checkBox_1_first++;
-    }
-    double currentTime = 0;
-    double value = 0;
-    if(serial->isOpen())
-    {
-        while(run)
-        {
-            currentTime = QDateTime::currentDateTime().toMSecsSinceEpoch()/1000.0 - timeStart;
-            QString ChannelName = ui->comboBox_OutPut_1->currentText();
-            ChannelName.append(".value?");
-            sendDataAction(ChannelName);
-            QString recieve = readDataAction();
-            value = recieve.toDouble();
-            ui->widget_T->graph(0)->addData(currentTime, value);
-            QApplication::processEvents(QEventLoop::AllEvents, 5);
-            ui->lineEdit_3->setText(recieve);
-            ui->lineEdit_3->update();
-            ui->widget_T->rescaleAxes();
-            ui->widget_T->replot();
-        }
-    } else
-    {
-        while(run)
-        {
-            currentTime = QDateTime::currentDateTime().toMSecsSinceEpoch()/1000.0 - timeStart;
-            value = sin(currentTime);
-            ui->widget_T->graph(0)->addData(currentTime, value);
-            QApplication::processEvents(QEventLoop::AllEvents, 5);
-            ui->widget_T->xAxis->setRange(0, 40);
-            ui->widget_T->replot();
-            QTest::qWait(5);
-        }
-    }
-    return;
-}
 
 void MainWindow::Plot() //nothing
 {
 
+    QStringList ValueList;
+    sendDataAction("getoutput");
+    QString reply = readDataAction();
+    ValueList = reply.split(",");
 
+    currentTime = QDateTime::currentDateTime().toMSecsSinceEpoch()/1000.0 - timeStart;
+    double value;
 
+    if (ui->checkBox_1->isChecked())
+    {
+        reply = ValueList.at(index_1);
+        value = reply.toDouble();
+        if((UnitList.at(index_1).contains("C")) | (UnitList.at(index_1).contains("K")))
+        {
+            ui->widget_T->graph(0)->addData(currentTime, value);
+            ui->widget_T->graph(0)->setPen(QPen(Qt::black));
+        }else
+        {
+            ui->widget_P->graph(0)->addData(currentTime, value);
+            ui->widget_P->graph(0)->setPen(QPen(Qt::black));
+        }
+
+    }
+    if (ui->checkBox_2->isChecked())
+    {
+        reply = ValueList.at(index_2);
+        value = reply.toDouble();
+        if((UnitList.at(index_2).contains("C")) | (UnitList.at(index_2).contains("K")))
+        {
+            ui->widget_T->graph(1)->addData(currentTime, value);
+        }else
+        {
+            ui->widget_P->graph(1)->addData(currentTime, value);
+        }
+
+    }
+    ui->widget_T->rescaleAxes();
+    ui->widget_T->replot();
 }
 
 void MainWindow::ReadNames() //Функция для считывания списка имен доступных каналов данных на PTC10
@@ -413,40 +400,6 @@ void MainWindow::ReadUnits() //Функция для считывания спи
             }
         }
     }
-    return;
-}
-
-void MainWindow::on_checkBox_2_toggled(bool checked)//функция которая не может в одновременное построение 2ух графиков при нажатии кнопочки
-{
-    this->run = ui->checkBox_2->isChecked();
-
-    if (start == 0)
-    {
-        timeStart = QDateTime::currentDateTime().toMSecsSinceEpoch()/1000.0;
-        start ++;
-    }
-
-    if (checkBox_2_first == 0)
-    {
-        ui->widget_T->addGraph();
-        checkBox_2_first++;
-    }
-
-    double currentTime = 0;
-    double value = 0;
-
-    while(run)
-    {
-        currentTime = QDateTime::currentDateTime().toMSecsSinceEpoch()/1000.0 - timeStart;
-        value = cos(currentTime);
-        ui->widget_T->graph(1)->addData(currentTime, value);
-        QApplication::processEvents(QEventLoop::AllEvents, 5);
-
-        ui->widget_T->xAxis->setRange(0, 40);
-        ui->widget_T->replot();
-        QTest::qWait(5);
-    }
-
     return;
 }
 
@@ -613,4 +566,61 @@ void MainWindow::on_pushButton_Start_PID_clicked()
         emit responce("Connect to smth first, please");
     }
     return;
+}
+
+void MainWindow::on_pushButton_Plot_clicked()
+{
+    if(ui->pushButton_Plot->text() == "PLOT")
+    {
+        if (start == 0)
+        {
+            ui->widget_T->addGraph();
+            ui->widget_T->addGraph();
+            ui->widget_T->addGraph();
+            ui->widget_T->addGraph();
+            ui->widget_T->addGraph();
+
+            ui->widget_P->addGraph();
+            ui->widget_P->addGraph();
+            ui->widget_P->addGraph();
+            ui->widget_P->addGraph();
+            ui->widget_P->addGraph();
+
+            start ++;
+        }
+
+
+        timeStart = QDateTime::currentDateTime().toMSecsSinceEpoch()/1000.0;
+
+
+        index_1 = NameList.indexOf(ui->comboBox_OutPut_1->currentText());
+        index_2 = NameList.indexOf(ui->comboBox_OutPut_2->currentText());
+
+        ui->pushButton_Plot->setText("STOP");
+        run = true;
+
+        while (run)
+        {
+            Plot();
+            QTest::qWait(50);
+        }
+    } else
+    {
+        run = false;
+        ui->pushButton_Plot->setText("PLOT");
+    }
+}
+
+void MainWindow::on_checkBox_1_clicked()
+{
+    if(ui->checkBox_1->isChecked())
+    {
+        ui->comboBox_OutPut_1->setDisabled(true);
+
+    } else
+    {
+        ui->comboBox_OutPut_1->setEnabled(true);
+        ui->widget_P->graph(0)->data().data()->clear();
+
+    }
 }
