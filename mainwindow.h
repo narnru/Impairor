@@ -44,10 +44,14 @@ private slots:
     void ReadUnits();
     void on_actionCalibrate_wait_time_triggered();
 
+    void pid_Scan();
+
 
     void on_checkBox_2_toggled(bool checked);
 
     void on_pushButton_Start_Power_clicked();
+
+    void on_pushButton_Start_PID_clicked();
 
 signals:
     void responce(const QString data);

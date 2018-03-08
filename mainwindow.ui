@@ -240,17 +240,17 @@
         <item>
          <layout class="QVBoxLayout" name="verticalLayout_2">
           <item>
-           <widget class="QLineEdit" name="lineEdit_6"/>
+           <widget class="QLineEdit" name="pid_LineEdit_P"/>
           </item>
           <item>
-           <widget class="QLineEdit" name="lineEdit_7">
+           <widget class="QLineEdit" name="pid_LineEdit_I">
             <property name="enabled">
              <bool>true</bool>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="lineEdit_5"/>
+           <widget class="QLineEdit" name="pid_LineEdit_D"/>
           </item>
          </layout>
         </item>
@@ -268,7 +268,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="lineEdit_8"/>
+           <widget class="QLineEdit" name="pid_LineEdit_Setpoint"/>
           </item>
           <item>
            <widget class="QLabel" name="label_10">
@@ -289,7 +289,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QComboBox" name="comboBox_Inout_PID">
+           <widget class="QComboBox" name="comboBox_Input_PID">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
               <horstretch>0</horstretch>

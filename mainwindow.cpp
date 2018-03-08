@@ -1,4 +1,4 @@
-#include "mainwindow.h"
+﻿#include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <QWidget>
 #include <QTime>
@@ -109,7 +109,7 @@ QString MainWindow::readDataAction() //Считывание данных из б
 void MainWindow::sendDataAction(QString data)//Отправка данных пациенту. Ну или запросов. Ну или порнографии. Мало ли на что у меня совести хватит.
 {
     if (serial->isOpen())
-    {
+    {  
         data.append('\n');
         serial->write(data.toLocal8Bit());
     }
@@ -221,6 +221,8 @@ void MainWindow::on_pushButton_Connect_TC_clicked()//кнопачка чтобы
             ui->pushButton_Connect_TC->setText("Disconnect");
             ReadNames();
             ReadUnits();
+            QApplication::processEvents();
+            pid_Scan();
             return;
         }
     } else //Дисконнект
@@ -232,7 +234,7 @@ void MainWindow::on_pushButton_Connect_TC_clicked()//кнопачка чтобы
     return; //Я конечно не знаю как сюда можно попасть но пусть будет.
 }
 
-void MainWindow::scanBauds() // функция для перебора всех возможных baudrate, будет смешно если она случайно подключится не к стэндфордскому прибору.
+void MainWindow::scanBauds() // функция для перебора всех возможных baudrate, будет смешно если она случайно подключится не к стэнфордскому прибору.
 {
     QList<qint32> bauds;
     bauds.append(QSerialPort::Baud19200);
@@ -289,7 +291,6 @@ MainWindow::~MainWindow()//При закрытии окошка
     delete ui; // чисти, чисти
 }
 
-
 void MainWindow::on_checkBox_1_toggled(bool checked)    //строить график, если checkBox нажат
 {
     this->run = ui->checkBox_1->isChecked();
@@ -340,14 +341,14 @@ void MainWindow::on_checkBox_1_toggled(bool checked)    //строить гра�
     return;
 }
 
-void MainWindow::Plot()
+void MainWindow::Plot() //nothing
 {
 
 
 
 }
 
-void MainWindow::ReadNames()
+void MainWindow::ReadNames() //Функция для считывания списка имен доступных каналов данных на PTC10
 {
     QString message = "getOutput.Names";
     sendDataAction(message);
@@ -356,21 +357,28 @@ void MainWindow::ReadNames()
 
     reply.remove(QChar('\n'), Qt::CaseInsensitive);
     reply.remove(QChar('\r'), Qt::CaseInsensitive);
-    NameList = reply.split(',');
+
+    reply.remove(QChar(' '), Qt::CaseInsensitive);
+
+    NameList = reply.split(",");
+
+
 
     ui->comboBox_OutPut_1->clear();
     ui->comboBox_OutPut_2->clear();
     ui->comboBox_OutPut_3->clear();
     ui->comboBox_OutPut_4->clear();
     ui->comboBox_OutPut_5->clear();
+    ui->comboBox_Input_PID->clear();
     ui->comboBox_OutPut_1->addItems(NameList);
     ui->comboBox_OutPut_2->addItems(NameList);
     ui->comboBox_OutPut_3->addItems(NameList);
     ui->comboBox_OutPut_4->addItems(NameList);
     ui->comboBox_OutPut_5->addItems(NameList);
+    ui->comboBox_Input_PID->addItems(NameList);
 }
 
-void MainWindow::ReadUnits()
+void MainWindow::ReadUnits() //Функция для считывания списка единиц измерения в доступных каналах данных на PTC10
 {
     QString message = "getOutput.Units";
     sendDataAction(message);
@@ -385,12 +393,12 @@ void MainWindow::ReadUnits()
     ui->comboBox_Output->clear();
     if(UnitList.length() != NameList.length())
     {
-        emit responce("smth gone very wrong");
+        emit responce("smth gone very wrong while reading units");
         return;
     }
     for(i = 0; i < UnitList.length(); i++)
     {
-        QApplication::processEvents();
+//        QApplication::processEvents();
         if (UnitList.at(i).contains("W") or UnitList.at(i).contains("A") or UnitList.at(i).contains("V"))
         {
             message = NameList.at(i);
@@ -408,7 +416,7 @@ void MainWindow::ReadUnits()
     return;
 }
 
-void MainWindow::on_checkBox_2_toggled(bool checked)
+void MainWindow::on_checkBox_2_toggled(bool checked)//функция которая не может в одновременное построение 2ух графиков при нажатии кнопочки
 {
     this->run = ui->checkBox_2->isChecked();
 
@@ -442,8 +450,7 @@ void MainWindow::on_checkBox_2_toggled(bool checked)
     return;
 }
 
-
-void MainWindow::on_pushButton_Start_Power_clicked()
+void MainWindow::on_pushButton_Start_Power_clicked() //Функция для задания фиксированной мощности на термоконтроллере. По дороге выключается пид и включается возможность подавать мощность
 {
     QString reply;
     QString message;
@@ -454,6 +461,7 @@ void MainWindow::on_pushButton_Start_Power_clicked()
         if(ui->comboBox_Output->currentText() == "")
         {
             emit responce("No output detected");
+            return;
         } else
         {
             message = ui->comboBox_Output->currentText();
@@ -480,14 +488,129 @@ void MainWindow::on_pushButton_Start_Power_clicked()
                 sendDataAction(message);
                 readDataAction();
 
+
             }else
             {
-                emit responce("This is not an output");
+                emit responce("This is not an output, smth gone very wrong");
+                return;
+            }
+        }
+    }else
+    {
+        emit responce("Connect to smth first, please");
+        return;
+    }
+    return;
+}
+
+void MainWindow::pid_Scan()
+{
+    QString message;
+    QString reply;
+
+    if(serial->isOpen())
+    {
+        message = ui->comboBox_Output->currentText();
+        message.append(".pid.p?");
+        sendDataAction(message);
+        reply = readDataAction();
+
+        ui->pid_LineEdit_P->setText(reply);
+
+        message = ui->comboBox_Output->currentText();
+        message.append(".pid.d?");
+        sendDataAction(message);
+        reply = readDataAction();
+
+        ui->pid_LineEdit_D->setText(reply);
+
+        message = ui->comboBox_Output->currentText();
+        message.append(".pid.i?");
+        sendDataAction(message);
+        reply = readDataAction();
+
+        ui->pid_LineEdit_I->setText(reply);
+
+        message = ui->comboBox_Output->currentText();
+        message.append(".pid.setpoint?");
+        sendDataAction(message);
+        reply = readDataAction();
+
+        ui->pid_LineEdit_Setpoint->setText(reply);
+
+        message = ui->comboBox_Output->currentText();
+        message.append(".pid.input?");
+        sendDataAction(message);
+        reply = readDataAction();
+
+        ui->comboBox_Input_PID->setCurrentText(reply);
+
+    }else
+    {
+        emit responce("pid scan failed");
+    }
+}
+
+void MainWindow::on_pushButton_Start_PID_clicked()
+{
+    QString reply;
+    QString message;
+    float pid;
+
+    if(serial->isOpen())
+    {
+        if(ui->comboBox_Output->currentText() == "")
+        {
+            emit responce("No output detected");
+        }else
+        {
+            message = ui->comboBox_Output->currentText();
+            message.append(".list");
+
+            sendDataAction(message);
+            reply = readDataAction();
+            if(reply.contains("pid"))
+            {
+                message = ui->comboBox_Output->currentText();
+                message.append(".pid.p = ");
+                pid = ui->pid_LineEdit_P->text().toFloat();
+                message.append(QString::number(pid, 'f', 2));
+                sendDataAction(message);
+                readDataAction();
+
+                message = ui->comboBox_Output->currentText();
+                message.append(".pid.i = ");
+                pid = ui->pid_LineEdit_I->text().toFloat();
+                message.append(QString::number(pid, 'f', 2));
+                sendDataAction(message);
+                readDataAction();
+
+                message = ui->comboBox_Output->currentText();
+                message.append(".pid.d = ");
+                pid = ui->pid_LineEdit_D->text().toFloat();
+                message.append(QString::number(pid, 'f', 2));
+                sendDataAction(message);
+                readDataAction();
+
+                message = "outputenable = on";
+                sendDataAction(message);
+                readDataAction();
+
+                message = ui->comboBox_Output->currentText();
+                message.append(".pid.mode = on");
+                sendDataAction(message);
+                readDataAction();
+
+                return;
+            }else
+            {
+                emit responce("This is not an output, smth gone very wrong");
+                return;
             }
         }
     }else
     {
         emit responce("Connect to smth first, please");
     }
+    return;
 }
-
