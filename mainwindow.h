@@ -54,6 +54,8 @@ private slots:
 
     void on_checkBox_1_clicked();
 
+    void SetColour (QString colour, const int n, QString index);
+
 signals:
     void responce(const QString data);
 

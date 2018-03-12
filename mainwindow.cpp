@@ -291,6 +291,47 @@ MainWindow::~MainWindow()//При закрытии окошка
     delete ui; // чисти, чисти
 }
 
+void MainWindow::SetColour(QString colour, const int n, QString index) //цвет графика из checkbox
+{
+    if (index == "T")
+    {
+        if (colour == "Black")
+        {
+            ui->widget_T->graph(n)->setPen(QPen(Qt::black));
+        }
+        if (colour == "Red")
+        {
+            ui->widget_T->graph(n)->setPen(QPen(Qt::red));
+        }
+        if (colour == "Green")
+        {
+            ui->widget_T->graph(n)->setPen(QPen(Qt::green));
+        }
+        if (colour == "Blue")
+        {
+            ui->widget_T->graph(n)->setPen(QPen(Qt::blue));
+        }
+    }
+    if (index == "P")
+    {
+        if (colour == "Black")
+        {
+            ui->widget_P->graph(n)->setPen(QPen(Qt::black));
+        }
+        if (colour == "Red")
+        {
+            ui->widget_P->graph(n)->setPen(QPen(Qt::red));
+        }
+        if (colour == "Green")
+        {
+            ui->widget_P->graph(n)->setPen(QPen(Qt::green));
+        }
+        if (colour == "Blue")
+        {
+            ui->widget_P->graph(n)->setPen(QPen(Qt::blue));
+        }
+    }
+}
 
 void MainWindow::Plot() //nothing
 {
@@ -310,11 +351,11 @@ void MainWindow::Plot() //nothing
         if((UnitList.at(index_1).contains("C")) | (UnitList.at(index_1).contains("K")))
         {
             ui->widget_T->graph(0)->addData(currentTime, value);
-            ui->widget_T->graph(0)->setPen(QPen(Qt::black));
+            SetColour(ui->checkBox_1->text(), 0, "T");
         }else
         {
             ui->widget_P->graph(0)->addData(currentTime, value);
-            ui->widget_P->graph(0)->setPen(QPen(Qt::black));
+            SetColour(ui->checkBox_1->text(), 0, "P");
         }
 
     }
@@ -325,9 +366,56 @@ void MainWindow::Plot() //nothing
         if((UnitList.at(index_2).contains("C")) | (UnitList.at(index_2).contains("K")))
         {
             ui->widget_T->graph(1)->addData(currentTime, value);
+            SetColour(ui->checkBox_2->text(), 1, "T");
         }else
         {
             ui->widget_P->graph(1)->addData(currentTime, value);
+            SetColour(ui->checkBox_2->text(), 1, "P");
+        }
+
+    }
+    if (ui->checkBox_3->isChecked())
+    {
+        reply = ValueList.at(index_3);
+        value = reply.toDouble();
+        if((UnitList.at(index_3).contains("C")) | (UnitList.at(index_3).contains("K")))
+        {
+            ui->widget_T->graph(2)->addData(currentTime, value);
+            SetColour(ui->checkBox_3->text(), 2, "T");
+        }else
+        {
+            ui->widget_P->graph(2)->addData(currentTime, value);
+            SetColour(ui->checkBox_3->text(), 2, "P");
+        }
+
+    }
+    if (ui->checkBox_4->isChecked())
+    {
+        reply = ValueList.at(index_4);
+        value = reply.toDouble();
+        if((UnitList.at(index_4).contains("C")) | (UnitList.at(index_4).contains("K")))
+        {
+            ui->widget_T->graph(3)->addData(currentTime, value);
+            SetColour(ui->checkBox_4->text(), 3, "T");
+        }else
+        {
+            ui->widget_P->graph(3)->addData(currentTime, value);
+            SetColour(ui->checkBox_4->text(), 3, "P");
+        }
+
+    }
+    if (ui->checkBox_5->isChecked())
+    {
+        reply = ValueList.at(index_5);
+        value = reply.toDouble();
+        if((UnitList.at(index_5).contains("C")) | (UnitList.at(index_5).contains("K")))
+        {
+            ui->widget_T->graph(4)->addData(currentTime, value);
+            SetColour(ui->checkBox_5->text(), 4, "T");
+        }else
+        {
+            ui->widget_P->graph(4)->addData(currentTime, value);
+            SetColour(ui->checkBox_5->text(), 4, "P");
         }
 
     }
@@ -608,6 +696,7 @@ void MainWindow::on_pushButton_Plot_clicked()
     {
         run = false;
         ui->pushButton_Plot->setText("PLOT");
+        ui->widget_T->clearGraphs();
     }
 }
 
