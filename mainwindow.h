@@ -54,6 +54,10 @@ private slots:
     void on_pushButton_Plot_clicked();
 
     void on_checkBox_1_clicked();
+    void on_checkBox_2_clicked();
+    void on_checkBox_3_clicked();
+    void on_checkBox_4_clicked();
+    void on_checkBox_5_clicked();
 
     void SetColour (QString colour, const int n, QString index);
 

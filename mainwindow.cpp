@@ -764,7 +764,15 @@ void MainWindow::on_pushButton_Plot_clicked()//Вечный(нет) цикл
     {
         run = false;
         ui->pushButton_Plot->setText("PLOT");
-        ui->widget_T->clearGraphs();
+        for (int i = 0; i<5; i++)
+        {
+            ui->widget_T->graph(i)->data().data()->clear();
+        }
+        for (int i = 0; i<5; i++)
+        {
+            ui->widget_P->graph(i)->data().data()->clear();
+        }
+
     }
 }
 
@@ -773,12 +781,77 @@ void MainWindow::on_checkBox_1_clicked() //попытка отключить о�
     if(ui->checkBox_1->isChecked())
     {
         ui->comboBox_OutPut_1->setDisabled(true);
+        index_1 = NameList.indexOf(ui->comboBox_OutPut_1->currentText());
 
     } else
     {
         ui->comboBox_OutPut_1->setEnabled(true);
         ui->widget_P->graph(0)->data().data()->clear();
         ui->widget_T->graph(0)->data().data()->clear();
+
+    }
+}
+
+void MainWindow::on_checkBox_2_clicked() //попытка отключить один график(правда радикально и безвозвратно)
+{
+    if(ui->checkBox_2->isChecked())
+    {
+        ui->comboBox_OutPut_2->setDisabled(true);
+        index_2 = NameList.indexOf(ui->comboBox_OutPut_2->currentText());
+
+    } else
+    {
+        ui->comboBox_OutPut_2->setEnabled(true);
+        ui->widget_P->graph(1)->data().data()->clear();
+        ui->widget_T->graph(1)->data().data()->clear();
+
+    }
+}
+
+void MainWindow::on_checkBox_3_clicked() //попытка отключить один график(правда радикально и безвозвратно)
+{
+    if(ui->checkBox_3->isChecked())
+    {
+        ui->comboBox_OutPut_3->setDisabled(true);
+        index_3 = NameList.indexOf(ui->comboBox_OutPut_3->currentText());
+
+    } else
+    {
+        ui->comboBox_OutPut_3->setEnabled(true);
+        ui->widget_P->graph(2)->data().data()->clear();
+        ui->widget_T->graph(2)->data().data()->clear();
+
+    }
+}
+
+void MainWindow::on_checkBox_4_clicked() //попытка отключить один график(правда радикально и безвозвратно)
+{
+    if(ui->checkBox_4->isChecked())
+    {
+        ui->comboBox_OutPut_4->setDisabled(true);
+        index_4 = NameList.indexOf(ui->comboBox_OutPut_4->currentText());
+
+    } else
+    {
+        ui->comboBox_OutPut_4->setEnabled(true);
+        ui->widget_P->graph(3)->data().data()->clear();
+        ui->widget_T->graph(3)->data().data()->clear();
+
+    }
+}
+
+void MainWindow::on_checkBox_5_clicked() //попытка отключить один график(правда радикально и безвозвратно)
+{
+    if(ui->checkBox_5->isChecked())
+    {
+        ui->comboBox_OutPut_5->setDisabled(true);
+        index_5 = NameList.indexOf(ui->comboBox_OutPut_5->currentText());
+
+    } else
+    {
+        ui->comboBox_OutPut_5->setEnabled(true);
+        ui->widget_P->graph(4)->data().data()->clear();
+        ui->widget_T->graph(4)->data().data()->clear();
 
     }
 }

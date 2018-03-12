@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>819</width>
-    <height>690</height>
+    <height>695</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -132,7 +132,7 @@
    <widget class="QGroupBox" name="groupBox_2">
     <property name="geometry">
      <rect>
-      <x>370</x>
+      <x>350</x>
       <y>490</y>
       <width>311</width>
       <height>61</height>
@@ -402,7 +402,7 @@
    <widget class="QCustomPlot" name="widget_T" native="true">
     <property name="geometry">
      <rect>
-      <x>370</x>
+      <x>350</x>
       <y>10</y>
       <width>371</width>
       <height>261</height>
@@ -412,13 +412,12 @@
    <widget class="QCustomPlot" name="widget_P" native="true">
     <property name="geometry">
      <rect>
-      <x>370</x>
+      <x>350</x>
       <y>280</y>
       <width>371</width>
       <height>191</height>
      </rect>
     </property>
-    <zorder>horizontalLayoutWidget</zorder>
    </widget>
    <widget class="QGroupBox" name="groupBox_4">
     <property name="enabled">
@@ -699,6 +698,32 @@
      <string>PLOT</string>
     </property>
    </widget>
+   <widget class="QCheckBox" name="checkBox_fixPlot_T">
+    <property name="geometry">
+     <rect>
+      <x>730</x>
+      <y>20</y>
+      <width>70</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>FixPlot</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="checkBox_fixPlot_p">
+    <property name="geometry">
+     <rect>
+      <x>730</x>
+      <y>290</y>
+      <width>70</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>FixPlot</string>
+    </property>
+   </widget>
    <zorder>layoutWidget</zorder>
    <zorder>layoutWidget</zorder>
    <zorder>groupBox</zorder>
@@ -713,6 +738,8 @@
    <zorder>groupBox_7</zorder>
    <zorder>comboBox_Output</zorder>
    <zorder>pushButton_Plot</zorder>
+   <zorder>checkBox_fixPlot_T</zorder>
+   <zorder>checkBox_fixPlot_p</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
