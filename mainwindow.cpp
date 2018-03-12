@@ -46,13 +46,20 @@ MainWindow::MainWindow(QWidget *parent) : // То что произойдет в
     log_file.write(time.toString("dd.MM.yyyy hh:mm:ss").toLocal8Bit()); // начальная строчка с указанем текущего времени(надо сделать еще и дату)
     log_file.write(" \n");
 
+    QString name;
+    name = "data/Reserve_file_"+time.toString("dd_MM_yyyy_hh_mm_ss") + ".txt";
+    reserve_file.setFileName(name);
+    if(!reserve_file.open(QIODevice::WriteOnly))
+    {
+        emit responce("Reserve file wrecked");
+    }
+
     ui->widget_T->xAxis->setLabel("Time"); // Оси графика для температуры
     ui->widget_T->yAxis->setLabel("Value");
     ui->widget_T->yAxis->setRange(-1.5, 1.5); // временно
     ui->widget_T->clearGraphs();
 
 }
-
 
 void MainWindow::on_actionUpdate_available_ports_triggered()// кнопачка чтобы обновить список доступных портов
 {
@@ -301,6 +308,7 @@ MainWindow::~MainWindow()//При закрытии окошка
      //delete timer;
     log_file.write("Closed\n");
     log_file.close();
+    reserve_file.close();
     serial->close();
     QApplication::processEvents(QEventLoop::AllEvents, 5);
     delete serial;
@@ -359,6 +367,10 @@ void MainWindow::Plot() //Одна итерация перестроения г�
 
     currentTime = QDateTime::currentDateTime().toMSecsSinceEpoch()/1000.0 - timeStart;
     double value;
+
+    reply.append(", " + QString::number(currentTime));
+    reserve_file.write(reply.append("\n").toLocal8Bit());
+    reserve_file.flush();
 
     if (ui->checkBox_1->isChecked())
     {
@@ -437,6 +449,9 @@ void MainWindow::Plot() //Одна итерация перестроения г�
     }
     ui->widget_T->rescaleAxes();
     ui->widget_T->replot();
+    ui->widget_P->rescaleAxes();
+    ui->widget_P->replot();
+
 }
 
 void MainWindow::ReadNames() //Функция для считывания списка имен доступных каналов данных на PTC10
@@ -445,6 +460,11 @@ void MainWindow::ReadNames() //Функция для считывания спи
     sendDataAction(message);
 
     QString reply = readDataAction();
+
+    message = reply;
+    message.append(", Time\n");
+    reserve_file.write(message.toLocal8Bit());
+
 
     reply.remove(QChar(' '), Qt::CaseInsensitive);
 
@@ -474,9 +494,10 @@ void MainWindow::ReadUnits() //Функция для считывания спи
 
     QString reply = readDataAction();
 
-    reply.remove(QChar('\n'), Qt::CaseInsensitive);
-    reply.remove(QChar('\r'), Qt::CaseInsensitive);
-    UnitList = reply.split(',');
+    UnitList = reply.split(", ");
+
+    reply.append(", ms\n");
+    reserve_file.write(reply.toLocal8Bit());
 
     ui->comboBox_Output->clear();
     if(UnitList.length() != NameList.length())
@@ -710,6 +731,9 @@ void MainWindow::on_pushButton_Plot_clicked()//Вечный(нет) цикл
 
         index_1 = NameList.indexOf(ui->comboBox_OutPut_1->currentText());
         index_2 = NameList.indexOf(ui->comboBox_OutPut_2->currentText());
+        index_3 = NameList.indexOf(ui->comboBox_OutPut_3->currentText());
+        index_4 = NameList.indexOf(ui->comboBox_OutPut_4->currentText());
+        index_5 = NameList.indexOf(ui->comboBox_OutPut_5->currentText());
 
         ui->pushButton_Plot->setText("STOP");
         run = true;
@@ -742,7 +766,7 @@ void MainWindow::on_checkBox_1_clicked() //попытка отключить о�
     }
 }
 
-void MainWindow::on_pushButton_Check_clicked()
+void MainWindow::on_pushButton_Check_clicked()//Проверка сПИДа
 {
     pid_Scan();
     return;
