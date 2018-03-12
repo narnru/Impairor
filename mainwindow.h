@@ -20,6 +20,7 @@ private:
     QSerialPort *serial;
     int additionalWaitTime = 50;
     QFile log_file;
+    QFile reserve_file;
     double timeStart = 0;
     int checkBox_1_first = 0;
     int checkBox_2_first = 0;
@@ -53,6 +54,8 @@ private slots:
     void on_pushButton_Plot_clicked();
 
     void on_checkBox_1_clicked();
+
+    void on_pushButton_Check_clicked();
 
 signals:
     void responce(const QString data);
