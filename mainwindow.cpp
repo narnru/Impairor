@@ -4,6 +4,7 @@
 #include <QTime>
 #include <math.h>
 #include <iostream>
+#include <QDir>
 
 MainWindow::MainWindow(QWidget *parent) : // То что произойдет в нулевой момент времени при создании окошка
     QMainWindow(parent),
@@ -11,6 +12,8 @@ MainWindow::MainWindow(QWidget *parent) : // То что произойдет в
 {
     ui->setupUi(this); //Хз что это
     serial = new QSerialPort(); // переменная для подключения по COM порту
+    QDateTime time;
+    time = QDateTime::currentDateTime();
 
     // Заполнение ComboBox-a
     QStringList Colours;
@@ -26,13 +29,21 @@ MainWindow::MainWindow(QWidget *parent) : // То что произойдет в
     connect(this, SIGNAL(responce(QString)),
             this, SLOT(showResponceData(QString)));
 
-    log_file.setFileName("log.txt"); //Создание лог файла
+    QDir dir;
+    dir = QDir::current();
+    if(!dir.exists("data"))
+    {
+        dir.mkdir("data");
+    }
+
+    log_file.setFileName("data/log.txt"); //Создание лог файла
     if(!log_file.open(QIODevice::ReadWrite))
     {
         ui->textLineResponce->setText("Log file wrecked");
     }
+
     log_file.readAll(); // перемещение текущей позиции в конец файла
-    log_file.write(QTime::currentTime().toString().toLocal8Bit()); // начальная строчка с указанем текущего времени(надо сделать еще и дату)
+    log_file.write(time.toString("dd.MM.yyyy hh:mm:ss").toLocal8Bit()); // начальная строчка с указанем текущего времени(надо сделать еще и дату)
     log_file.write(" \n");
 
     ui->widget_T->xAxis->setLabel("Time"); // Оси графика для температуры
@@ -92,6 +103,7 @@ void MainWindow::on_actionCalibrate_wait_time_triggered()// кнопачка ч�
 QString MainWindow::readDataAction() //Считывание данных из буффера + ожидание новых данных. Если там оказалось что-то чего ты не ожидал увидеть - твои проблемы.
 {
     QByteArray temp;
+    QString reply;
     if (serial->isOpen())
     {
         temp = serial->readAll();
@@ -103,7 +115,11 @@ QString MainWindow::readDataAction() //Считывание данных из б
             }
         }
     }
-    return QString(temp);
+    reply = QString(temp);
+    reply.remove(QChar('\n'), Qt::CaseInsensitive);
+    reply.remove(QChar('\r'), Qt::CaseInsensitive);
+
+    return reply;
 }
 
 void MainWindow::sendDataAction(QString data)//Отправка данных пациенту. Ну или запросов. Ну или порнографии. Мало ли на что у меня совести хватит.
@@ -333,7 +349,7 @@ void MainWindow::SetColour(QString colour, const int n, QString index) //цве�
     }
 }
 
-void MainWindow::Plot() //nothing
+void MainWindow::Plot() //Одна итерация перестроения графиков
 {
 
     QStringList ValueList;
@@ -429,9 +445,6 @@ void MainWindow::ReadNames() //Функция для считывания спи
     sendDataAction(message);
 
     QString reply = readDataAction();
-
-    reply.remove(QChar('\n'), Qt::CaseInsensitive);
-    reply.remove(QChar('\r'), Qt::CaseInsensitive);
 
     reply.remove(QChar(' '), Qt::CaseInsensitive);
 
@@ -544,7 +557,7 @@ void MainWindow::on_pushButton_Start_Power_clicked() //Функция для з�
     return;
 }
 
-void MainWindow::pid_Scan()
+void MainWindow::pid_Scan() //Функция для считывания текущих параметров сПИДа
 {
     QString message;
     QString reply;
@@ -584,7 +597,8 @@ void MainWindow::pid_Scan()
         sendDataAction(message);
         reply = readDataAction();
 
-        ui->comboBox_Input_PID->setCurrentText(reply);
+        reply.remove(QChar(' '), Qt::CaseInsensitive);
+        ui->comboBox_Input_PID->setCurrentIndex(NameList.indexOf(reply));
 
     }else
     {
@@ -592,7 +606,7 @@ void MainWindow::pid_Scan()
     }
 }
 
-void MainWindow::on_pushButton_Start_PID_clicked()
+void MainWindow::on_pushButton_Start_PID_clicked() //Запуск сПИДа
 {
     QString reply;
     QString message;
@@ -633,6 +647,19 @@ void MainWindow::on_pushButton_Start_PID_clicked()
                 sendDataAction(message);
                 readDataAction();
 
+
+                message = ui->comboBox_Output->currentText();
+                message.append(".pid.setpoint = ");
+                pid = ui->pid_LineEdit_Setpoint->text().toFloat();
+                message.append(QString::number(pid, 'f', 2));
+                sendDataAction(message);
+                readDataAction();
+
+                message = ui->comboBox_Output->currentText();
+                message.append(".pid.input = ");
+                message.append(ui->comboBox_Input_PID->currentText());
+
+
                 message = "outputenable = on";
                 sendDataAction(message);
                 readDataAction();
@@ -656,7 +683,7 @@ void MainWindow::on_pushButton_Start_PID_clicked()
     return;
 }
 
-void MainWindow::on_pushButton_Plot_clicked()
+void MainWindow::on_pushButton_Plot_clicked()//Вечный(нет) цикл
 {
     if(ui->pushButton_Plot->text() == "PLOT")
     {
@@ -700,7 +727,7 @@ void MainWindow::on_pushButton_Plot_clicked()
     }
 }
 
-void MainWindow::on_checkBox_1_clicked()
+void MainWindow::on_checkBox_1_clicked() //попытка отключить один график(правда радикально и безвозвратно)
 {
     if(ui->checkBox_1->isChecked())
     {
@@ -710,6 +737,13 @@ void MainWindow::on_checkBox_1_clicked()
     {
         ui->comboBox_OutPut_1->setEnabled(true);
         ui->widget_P->graph(0)->data().data()->clear();
+        ui->widget_T->graph(0)->data().data()->clear();
 
     }
+}
+
+void MainWindow::on_pushButton_Check_clicked()
+{
+    pid_Scan();
+    return;
 }

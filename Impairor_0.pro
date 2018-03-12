@@ -6,6 +6,8 @@
 
 QT          += core gui serialport testlib
 
+QT.testlib.CONFIG -= console
+
 CONFIG   += c++11
 
 
