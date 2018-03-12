@@ -292,7 +292,7 @@ MainWindow::~MainWindow()//При закрытии окошка
 }
 
 
-void MainWindow::Plot() //nothing
+void MainWindow::Plot() //Одна итерация перестроения графиков
 {
 
     QStringList ValueList;
@@ -456,7 +456,7 @@ void MainWindow::on_pushButton_Start_Power_clicked() //Функция для з�
     return;
 }
 
-void MainWindow::pid_Scan()
+void MainWindow::pid_Scan() //Функция для считывания текущих параметров сПИДа
 {
     QString message;
     QString reply;
@@ -504,7 +504,7 @@ void MainWindow::pid_Scan()
     }
 }
 
-void MainWindow::on_pushButton_Start_PID_clicked()
+void MainWindow::on_pushButton_Start_PID_clicked() //Запуск сПИДа
 {
     QString reply;
     QString message;
@@ -568,7 +568,7 @@ void MainWindow::on_pushButton_Start_PID_clicked()
     return;
 }
 
-void MainWindow::on_pushButton_Plot_clicked()
+void MainWindow::on_pushButton_Plot_clicked()//Вечный(нет) цикл
 {
     if(ui->pushButton_Plot->text() == "PLOT")
     {
@@ -611,7 +611,7 @@ void MainWindow::on_pushButton_Plot_clicked()
     }
 }
 
-void MainWindow::on_checkBox_1_clicked()
+void MainWindow::on_checkBox_1_clicked() //попытка отключить один график(правда радикально и безвозвратно)
 {
     if(ui->checkBox_1->isChecked())
     {
@@ -621,6 +621,7 @@ void MainWindow::on_checkBox_1_clicked()
     {
         ui->comboBox_OutPut_1->setEnabled(true);
         ui->widget_P->graph(0)->data().data()->clear();
+        ui->widget_T->graph(0)->data().data()->clear();
 
     }
 }
