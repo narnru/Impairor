@@ -21,8 +21,17 @@ MainWindow::MainWindow(QWidget *parent) : // То что произойдет в
     Colours.push_back("Red");
     Colours.push_back("Green");
     Colours.push_back("Blue");
+    Colours.push_back("Yellow");
     ui->comboBox_Colour_1->clear();
     ui->comboBox_Colour_1->addItems(Colours);
+    ui->comboBox_Colour_2->clear();
+    ui->comboBox_Colour_2->addItems(Colours);
+    ui->comboBox_Colour_3->clear();
+    ui->comboBox_Colour_3->addItems(Colours);
+    ui->comboBox_Colour_4->clear();
+    ui->comboBox_Colour_4->addItems(Colours);
+    ui->comboBox_Colour_5->clear();
+    ui->comboBox_Colour_5->addItems(Colours);
 
     on_actionUpdate_available_ports_triggered();// Получение списка доступных портов
 
@@ -335,6 +344,10 @@ void MainWindow::SetColour(QString colour, const int n, QString index) //цве�
         {
             ui->widget_T->graph(n)->setPen(QPen(Qt::blue));
         }
+        if (colour == "Yellow")
+        {
+            ui->widget_T->graph(n)->setPen(QPen(Qt::yellow));
+        }
     }
     if (index == "P")
     {
@@ -353,6 +366,10 @@ void MainWindow::SetColour(QString colour, const int n, QString index) //цве�
         if (colour == "Blue")
         {
             ui->widget_P->graph(n)->setPen(QPen(Qt::blue));
+        }
+        if (colour == "Yellow")
+        {
+            ui->widget_P->graph(n)->setPen(QPen(Qt::yellow));
         }
     }
 }
@@ -379,11 +396,11 @@ void MainWindow::Plot() //Одна итерация перестроения г�
         if((UnitList.at(index_1).contains("C")) | (UnitList.at(index_1).contains("K")))
         {
             ui->widget_T->graph(0)->addData(currentTime, value);
-            SetColour(ui->checkBox_1->text(), 0, "T");
+            SetColour(ui->comboBox_Colour_1->currentText(), 0, "T");
         }else
         {
             ui->widget_P->graph(0)->addData(currentTime, value);
-            SetColour(ui->checkBox_1->text(), 0, "P");
+            SetColour(ui->comboBox_Colour_1->currentText(), 0, "P");
         }
 
     }
@@ -394,11 +411,11 @@ void MainWindow::Plot() //Одна итерация перестроения г�
         if((UnitList.at(index_2).contains("C")) | (UnitList.at(index_2).contains("K")))
         {
             ui->widget_T->graph(1)->addData(currentTime, value);
-            SetColour(ui->checkBox_2->text(), 1, "T");
+            SetColour(ui->comboBox_Colour_2->currentText(), 1, "T");
         }else
         {
             ui->widget_P->graph(1)->addData(currentTime, value);
-            SetColour(ui->checkBox_2->text(), 1, "P");
+            SetColour(ui->comboBox_Colour_2->currentText(), 1, "P");
         }
 
     }
@@ -409,11 +426,11 @@ void MainWindow::Plot() //Одна итерация перестроения г�
         if((UnitList.at(index_3).contains("C")) | (UnitList.at(index_3).contains("K")))
         {
             ui->widget_T->graph(2)->addData(currentTime, value);
-            SetColour(ui->checkBox_3->text(), 2, "T");
+            SetColour(ui->comboBox_Colour_3->currentText(), 2, "T");
         }else
         {
             ui->widget_P->graph(2)->addData(currentTime, value);
-            SetColour(ui->checkBox_3->text(), 2, "P");
+            SetColour(ui->comboBox_Colour_3->currentText(), 2, "P");
         }
 
     }
@@ -424,11 +441,11 @@ void MainWindow::Plot() //Одна итерация перестроения г�
         if((UnitList.at(index_4).contains("C")) | (UnitList.at(index_4).contains("K")))
         {
             ui->widget_T->graph(3)->addData(currentTime, value);
-            SetColour(ui->checkBox_4->text(), 3, "T");
+            SetColour(ui->comboBox_Colour_4->currentText(), 3, "T");
         }else
         {
             ui->widget_P->graph(3)->addData(currentTime, value);
-            SetColour(ui->checkBox_4->text(), 3, "P");
+            SetColour(ui->comboBox_Colour_4->currentText(), 3, "P");
         }
 
     }
@@ -439,11 +456,11 @@ void MainWindow::Plot() //Одна итерация перестроения г�
         if((UnitList.at(index_5).contains("C")) | (UnitList.at(index_5).contains("K")))
         {
             ui->widget_T->graph(4)->addData(currentTime, value);
-            SetColour(ui->checkBox_5->text(), 4, "T");
+            SetColour(ui->comboBox_Colour_5->currentText(), 4, "T");
         }else
         {
             ui->widget_P->graph(4)->addData(currentTime, value);
-            SetColour(ui->checkBox_5->text(), 4, "P");
+            SetColour(ui->comboBox_Colour_5->currentText(), 4, "P");
         }
 
     }
