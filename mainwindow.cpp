@@ -12,8 +12,6 @@ MainWindow::MainWindow(QWidget *parent) : // То что произойдет в
 {
     ui->setupUi(this); //Хз что это
     serial = new QSerialPort(); // переменная для подключения по COM порту
-    QDateTime time;
-    time = QDateTime::currentDateTime();
 
     // Заполнение ComboBox-a
     QStringList Colours;
@@ -32,6 +30,12 @@ MainWindow::MainWindow(QWidget *parent) : // То что произойдет в
     ui->comboBox_Colour_4->addItems(Colours);
     ui->comboBox_Colour_5->clear();
     ui->comboBox_Colour_5->addItems(Colours);
+
+    ui->comboBox_Colour_1->setCurrentIndex(0);
+    ui->comboBox_Colour_2->setCurrentIndex(1);
+    ui->comboBox_Colour_3->setCurrentIndex(2);
+    ui->comboBox_Colour_4->setCurrentIndex(3);
+    ui->comboBox_Colour_5->setCurrentIndex(4);
 
     on_actionUpdate_available_ports_triggered();// Получение списка доступных портов
 
@@ -55,13 +59,6 @@ MainWindow::MainWindow(QWidget *parent) : // То что произойдет в
     log_file.write(time.toString("dd.MM.yyyy hh:mm:ss").toLocal8Bit()); // начальная строчка с указанем текущего времени(надо сделать еще и дату)
     log_file.write(" \n");
 
-    QString name;
-    name = "data/Reserve_file_"+time.toString("dd_MM_yyyy_hh_mm_ss") + ".txt";
-    reserve_file.setFileName(name);
-    if(!reserve_file.open(QIODevice::WriteOnly))
-    {
-        emit responce("Reserve file wrecked");
-    }
 
     ui->widget_T->xAxis->setLabel("Time"); // Оси графика для температуры
     ui->widget_T->yAxis->setLabel("Value");
@@ -478,11 +475,6 @@ void MainWindow::ReadNames() //Функция для считывания спи
 
     QString reply = readDataAction();
 
-    message = reply;
-    message.append(", Time\n");
-    reserve_file.write(message.toLocal8Bit());
-
-
     reply.remove(QChar(' '), Qt::CaseInsensitive);
 
     NameList = reply.split(",");
@@ -723,56 +715,81 @@ void MainWindow::on_pushButton_Start_PID_clicked() //Запуск сПИДа
 
 void MainWindow::on_pushButton_Plot_clicked()//Вечный(нет) цикл
 {
-    if(ui->pushButton_Plot->text() == "PLOT")
+    if(serial->isOpen())
     {
-        if (start == 0)
+        if(ui->pushButton_Plot->text() == "PLOT")
         {
-            ui->widget_T->addGraph();
-            ui->widget_T->addGraph();
-            ui->widget_T->addGraph();
-            ui->widget_T->addGraph();
-            ui->widget_T->addGraph();
+            QString name;
+            QDateTime time;
+            time = QDateTime::currentDateTime();
 
-            ui->widget_P->addGraph();
-            ui->widget_P->addGraph();
-            ui->widget_P->addGraph();
-            ui->widget_P->addGraph();
-            ui->widget_P->addGraph();
+            name = "data/Reserve_file_"+time.toString("dd_MM_yyyy_hh_mm_ss") + ".txt";
+            reserve_file.setFileName(name);
+            if(!reserve_file.open(QIODevice::WriteOnly))
+            {
+                emit responce("Reserve file wrecked");
+            }
 
-            start ++;
-        }
+            foreach (QString Name, NameList) {
+                reserve_file.write(Name.append(", ").toLocal8Bit());
+            }
+            reserve_file.write(", Time\n");
+
+            foreach (QString Unit, UnitList) {
+                reserve_file.write(Unit.append(", ").toLocal8Bit());
+            }
+            reserve_file.write(", ms\n");
 
 
-        timeStart = QDateTime::currentDateTime().toMSecsSinceEpoch()/1000.0;
+            if (start == 0)
+            {
+                ui->widget_T->addGraph();
+                ui->widget_T->addGraph();
+                ui->widget_T->addGraph();
+                ui->widget_T->addGraph();
+                ui->widget_T->addGraph();
+
+                ui->widget_P->addGraph();
+                ui->widget_P->addGraph();
+                ui->widget_P->addGraph();
+                ui->widget_P->addGraph();
+                ui->widget_P->addGraph();
+
+                start ++;
+            }
 
 
-        index_1 = NameList.indexOf(ui->comboBox_OutPut_1->currentText());
-        index_2 = NameList.indexOf(ui->comboBox_OutPut_2->currentText());
-        index_3 = NameList.indexOf(ui->comboBox_OutPut_3->currentText());
-        index_4 = NameList.indexOf(ui->comboBox_OutPut_4->currentText());
-        index_5 = NameList.indexOf(ui->comboBox_OutPut_5->currentText());
+            timeStart = QDateTime::currentDateTime().toMSecsSinceEpoch()/1000.0;
 
-        ui->pushButton_Plot->setText("STOP");
-        run = true;
 
-        while (run)
+            index_1 = NameList.indexOf(ui->comboBox_OutPut_1->currentText());
+            index_2 = NameList.indexOf(ui->comboBox_OutPut_2->currentText());
+            index_3 = NameList.indexOf(ui->comboBox_OutPut_3->currentText());
+            index_4 = NameList.indexOf(ui->comboBox_OutPut_4->currentText());
+            index_5 = NameList.indexOf(ui->comboBox_OutPut_5->currentText());
+
+            ui->pushButton_Plot->setText("STOP");
+            run = true;
+
+            while (run)
+            {
+                Plot();
+                QTest::qWait(50);
+            }
+        } else
         {
-            Plot();
-            QTest::qWait(50);
+            run = false;
+            ui->pushButton_Plot->setText("PLOT");
+            for (int i = 0; i<5; i++)
+            {
+                ui->widget_T->graph(i)->data().data()->clear();
+            }
+            for (int i = 0; i<5; i++)
+            {
+                ui->widget_P->graph(i)->data().data()->clear();
+            }
+        reserve_file.close();
         }
-    } else
-    {
-        run = false;
-        ui->pushButton_Plot->setText("PLOT");
-        for (int i = 0; i<5; i++)
-        {
-            ui->widget_T->graph(i)->data().data()->clear();
-        }
-        for (int i = 0; i<5; i++)
-        {
-            ui->widget_P->graph(i)->data().data()->clear();
-        }
-
     }
 }
 
