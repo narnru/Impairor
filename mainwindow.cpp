@@ -65,6 +65,17 @@ MainWindow::MainWindow(QWidget *parent) : // То что произойдет в
     ui->widget_T->yAxis->setRange(-1.5, 1.5); // временно
     ui->widget_T->clearGraphs();
 
+    ui->widget_T->addGraph();
+    ui->widget_T->addGraph();
+    ui->widget_T->addGraph();
+    ui->widget_T->addGraph();
+    ui->widget_T->addGraph();
+
+    ui->widget_P->addGraph();
+    ui->widget_P->addGraph();
+    ui->widget_P->addGraph();
+    ui->widget_P->addGraph();
+    ui->widget_P->addGraph();
 }
 
 void MainWindow::on_actionUpdate_available_ports_triggered()// кнопачка чтобы обновить список доступных портов
@@ -316,7 +327,6 @@ MainWindow::~MainWindow()//При закрытии окошка
     log_file.close();
     reserve_file.close();
     serial->close();
-    QApplication::processEvents(QEventLoop::AllEvents, 5);
     delete serial;
     delete ui; // чисти, чисти
 }
@@ -389,6 +399,7 @@ void MainWindow::Plot() //Одна итерация перестроения г�
     if (ui->checkBox_1->isChecked())
     {
         reply = ValueList.at(index_1);
+        ui->lineEdit_Channel_1->setText(reply);
         value = reply.toDouble();
         if((UnitList.at(index_1).contains("C")) | (UnitList.at(index_1).contains("K")))
         {
@@ -404,6 +415,7 @@ void MainWindow::Plot() //Одна итерация перестроения г�
     if (ui->checkBox_2->isChecked())
     {
         reply = ValueList.at(index_2);
+        ui->lineEdit_Channel_2->setText(reply);
         value = reply.toDouble();
         if((UnitList.at(index_2).contains("C")) | (UnitList.at(index_2).contains("K")))
         {
@@ -419,6 +431,7 @@ void MainWindow::Plot() //Одна итерация перестроения г�
     if (ui->checkBox_3->isChecked())
     {
         reply = ValueList.at(index_3);
+        ui->lineEdit_Channel_3->setText(reply);
         value = reply.toDouble();
         if((UnitList.at(index_3).contains("C")) | (UnitList.at(index_3).contains("K")))
         {
@@ -434,6 +447,7 @@ void MainWindow::Plot() //Одна итерация перестроения г�
     if (ui->checkBox_4->isChecked())
     {
         reply = ValueList.at(index_4);
+        ui->lineEdit_Channel_4->setText(reply);
         value = reply.toDouble();
         if((UnitList.at(index_4).contains("C")) | (UnitList.at(index_4).contains("K")))
         {
@@ -449,6 +463,7 @@ void MainWindow::Plot() //Одна итерация перестроения г�
     if (ui->checkBox_5->isChecked())
     {
         reply = ValueList.at(index_5);
+        ui->lineEdit_Channel_5->setText(reply);
         value = reply.toDouble();
         if((UnitList.at(index_5).contains("C")) | (UnitList.at(index_5).contains("K")))
         {
@@ -741,22 +756,6 @@ void MainWindow::on_pushButton_Plot_clicked()//Вечный(нет) цикл
             reserve_file.write(", ms\n");
 
 
-            if (start == 0)
-            {
-                ui->widget_T->addGraph();
-                ui->widget_T->addGraph();
-                ui->widget_T->addGraph();
-                ui->widget_T->addGraph();
-                ui->widget_T->addGraph();
-
-                ui->widget_P->addGraph();
-                ui->widget_P->addGraph();
-                ui->widget_P->addGraph();
-                ui->widget_P->addGraph();
-                ui->widget_P->addGraph();
-
-                start ++;
-            }
 
 
             timeStart = QDateTime::currentDateTime().toMSecsSinceEpoch()/1000.0;
@@ -805,7 +804,6 @@ void MainWindow::on_checkBox_1_clicked() //попытка отключить о�
         ui->comboBox_OutPut_1->setEnabled(true);
         ui->widget_P->graph(0)->data().data()->clear();
         ui->widget_T->graph(0)->data().data()->clear();
-
     }
 }
 
