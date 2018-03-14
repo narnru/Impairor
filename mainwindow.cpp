@@ -405,10 +405,12 @@ void MainWindow::Plot() //Одна итерация перестроения г�
         {
             ui->widget_T->graph(0)->addData(currentTime, value);
             SetColour(ui->comboBox_Colour_1->currentText(), 0, "T");
+            ui->label_unit_1->setText("C");
         }else
         {
             ui->widget_P->graph(0)->addData(currentTime, value);
             SetColour(ui->comboBox_Colour_1->currentText(), 0, "P");
+            ui->label_unit_1->setText("W");
         }
 
     }
@@ -421,10 +423,12 @@ void MainWindow::Plot() //Одна итерация перестроения г�
         {
             ui->widget_T->graph(1)->addData(currentTime, value);
             SetColour(ui->comboBox_Colour_2->currentText(), 1, "T");
+            ui->label_unit_2->setText("C");
         }else
         {
             ui->widget_P->graph(1)->addData(currentTime, value);
             SetColour(ui->comboBox_Colour_2->currentText(), 1, "P");
+            ui->label_unit_2->setText("W");
         }
 
     }
@@ -437,10 +441,12 @@ void MainWindow::Plot() //Одна итерация перестроения г�
         {
             ui->widget_T->graph(2)->addData(currentTime, value);
             SetColour(ui->comboBox_Colour_3->currentText(), 2, "T");
+            ui->label_unit_3->setText("C");
         }else
         {
             ui->widget_P->graph(2)->addData(currentTime, value);
             SetColour(ui->comboBox_Colour_3->currentText(), 2, "P");
+            ui->label_unit_3->setText("W");
         }
 
     }
@@ -453,10 +459,12 @@ void MainWindow::Plot() //Одна итерация перестроения г�
         {
             ui->widget_T->graph(3)->addData(currentTime, value);
             SetColour(ui->comboBox_Colour_4->currentText(), 3, "T");
+            ui->label_unit_4->setText("C");
         }else
         {
             ui->widget_P->graph(3)->addData(currentTime, value);
             SetColour(ui->comboBox_Colour_4->currentText(), 3, "P");
+            ui->label_unit_4->setText("W");
         }
 
     }
@@ -469,18 +477,34 @@ void MainWindow::Plot() //Одна итерация перестроения г�
         {
             ui->widget_T->graph(4)->addData(currentTime, value);
             SetColour(ui->comboBox_Colour_5->currentText(), 4, "T");
+            ui->label_unit_5->setText("C");
         }else
         {
             ui->widget_P->graph(4)->addData(currentTime, value);
             SetColour(ui->comboBox_Colour_5->currentText(), 4, "P");
+            ui->label_unit_5->setText("W");
         }
 
     }
-    ui->widget_T->rescaleAxes();
-    ui->widget_T->replot();
-    ui->widget_P->rescaleAxes();
-    ui->widget_P->replot();
+    if (!ui->checkBox_fixPlot_P->isChecked())
+    {
+        ui->widget_P->rescaleAxes();
+        if(ui->widget_P->yAxis->range().size()<0.01)
+        {
+            ui->widget_P->yAxis->setRange(ui->widget_P->yAxis->range().center()-0.1, ui->widget_P->yAxis->range().center()+0.1);
+        }
+        ui->widget_P->replot();
+    }
 
+    if (!ui->checkBox_fixPlot_T->isChecked())
+    {
+        ui->widget_T->rescaleAxes();
+        if(ui->widget_T->yAxis->range().size()<0.01)
+        {
+            ui->widget_T->yAxis->setRange(ui->widget_T->yAxis->range().center()-0.1, ui->widget_T->yAxis->range().center()+0.1);
+        }
+        ui->widget_T->replot();
+    }
 }
 
 void MainWindow::ReadNames() //Функция для считывания списка имен доступных каналов данных на PTC10
@@ -734,6 +758,10 @@ void MainWindow::on_pushButton_Plot_clicked()//Вечный(нет) цикл
     {
         if(ui->pushButton_Plot->text() == "PLOT")
         {
+            if(reserve_file.isOpen())
+            {
+                reserve_file.close();
+            }
             QString name;
             QDateTime time;
             time = QDateTime::currentDateTime();
@@ -786,8 +814,7 @@ void MainWindow::on_pushButton_Plot_clicked()//Вечный(нет) цикл
             for (int i = 0; i<5; i++)
             {
                 ui->widget_P->graph(i)->data().data()->clear();
-            }
-        reserve_file.close();
+            }            
         }
     }
 }
@@ -875,4 +902,45 @@ void MainWindow::on_pushButton_Check_clicked()//Проверка сПИДа
 {
     pid_Scan();
     return;
+}
+
+void MainWindow::on_checkBox_fixPlot_T_clicked()
+{
+    if(ui->checkBox_fixPlot_T->isChecked())
+    {
+        ui->widget_T->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables);
+    }
+    else
+    {
+        ui->widget_T->setInteractions(QCP::iSelectPlottables);
+    }
+}
+
+void MainWindow::on_checkBox_fixPlot_P_clicked()
+{
+    if(ui->checkBox_fixPlot_P->isChecked())
+    {
+         ui->widget_P->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables);
+    }
+    else
+    {
+        ui->widget_P->setInteractions(QCP::iSelectPlottables);
+    }
+}
+
+void MainWindow::on_pushButton_Export_clicked()
+{
+    QString Name;
+    Name = ui->lineEdit_FileName_Export->text();
+    if (reserve_file.isOpen())
+    {
+        if (ui->lineEdit_FileName_Export->text().remove(" ", Qt::CaseInsensitive)!="")
+        {
+            if(reserve_file.copy(Name))
+            {
+                return;
+            }
+        }
+    }
+    emit responce("File wasn't created");
 }

@@ -63,6 +63,12 @@ private slots:
 
     void on_pushButton_Check_clicked();
 
+    void on_checkBox_fixPlot_T_clicked();
+
+    void on_checkBox_fixPlot_P_clicked();
+
+    void on_pushButton_Export_clicked();
+
 signals:
     void responce(const QString data);
 
