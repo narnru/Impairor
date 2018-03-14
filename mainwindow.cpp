@@ -931,13 +931,22 @@ void MainWindow::on_checkBox_fixPlot_P_clicked()
 void MainWindow::on_pushButton_Export_clicked()
 {
     QString Name;
-    Name = ui->lineEdit_FileName_Export->text();
+    Name.append("data/");
+    Name.append(ui->lineEdit_FileName_Export->text());
+    Name.append(".dat");
+    if(QFile::exists(Name))
+    {
+        emit responce("Set another name");
+        return;
+    }
     if (reserve_file.isOpen())
     {
         if (ui->lineEdit_FileName_Export->text().remove(" ", Qt::CaseInsensitive)!="")
         {
             if(reserve_file.copy(Name))
             {
+                reserve_file.open(QIODevice::ReadWrite);
+                reserve_file.readAll();
                 return;
             }
         }
