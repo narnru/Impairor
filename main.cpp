@@ -8,8 +8,8 @@ int main(int argc, char *argv[])
     QCoreApplication::setLibraryPaths(paths);
 
     QApplication a(argc, argv);
-    MainWindow w;
-    w.setAttribute(Qt::WA_DeleteOnClose);
-    w.show();
+    MainWindow *w = new MainWindow();
+    w->setAttribute(Qt::WA_DeleteOnClose);
+    w->show();
     return a.exec();
 }

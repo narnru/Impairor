@@ -16,11 +16,10 @@ class MainWindow : public QMainWindow
 {
     Q_OBJECT
 private:
-    QTime time;
     QSerialPort *serial;
     int additionalWaitTime = 50;
-    QFile log_file;
-    QFile reserve_file;
+    QFile *log_file;
+    QFile *reserve_file;
     double timeStart = 0;
     int checkBox_1_first = 0;
     int checkBox_2_first = 0;
@@ -68,6 +67,7 @@ private slots:
     void on_checkBox_fixPlot_P_clicked();
 
     void on_pushButton_Export_clicked();
+    void closeEvent(QCloseEvent *event);
 
 signals:
     void responce(const QString data);

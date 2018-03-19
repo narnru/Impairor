@@ -11,7 +11,10 @@ MainWindow::MainWindow(QWidget *parent) : // То что произойдет в
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this); //Хз что это
-    serial = new QSerialPort(); // переменная для подключения по COM порту
+    serial = new QSerialPort(this); // переменная для подключения по COM порту
+    log_file = new QFile(this);
+    reserve_file = new QFile(this);
+
 
     // Заполнение ComboBox-a
     QStringList Colours;
@@ -49,16 +52,17 @@ MainWindow::MainWindow(QWidget *parent) : // То что произойдет в
         dir.mkdir("data");
     }
 
-    log_file.setFileName("data/log.txt"); //Создание лог файла
-    if(!log_file.open(QIODevice::ReadWrite))
+    log_file->setFileName("data/log.txt"); //Создание лог файла
+    if(!log_file->open(QIODevice::ReadWrite))
     {
         ui->textLineResponce->setText("Log file wrecked");
     }
 
-    log_file.readAll(); // перемещение текущей позиции в конец файла
-    log_file.write(time.toString("dd.MM.yyyy hh:mm:ss").toLocal8Bit()); // начальная строчка с указанем текущего времени(надо сделать еще и дату)
-    log_file.write(" \n");
 
+    QDateTime time = QDateTime::currentDateTime();
+    log_file->readAll(); // перемещение текущей позиции в конец файла
+    log_file->write(time.toString("dd.MM.yyyy hh:mm:ss").toLocal8Bit()); // начальная строчка с указанем текущего времени(надо сделать еще и дату)
+    log_file->write(" \n");
 
     ui->widget_T->xAxis->setLabel("Time"); // Оси графика для температуры
     ui->widget_T->yAxis->setLabel("Value");
@@ -76,6 +80,8 @@ MainWindow::MainWindow(QWidget *parent) : // То что произойдет в
     ui->widget_P->addGraph();
     ui->widget_P->addGraph();
     ui->widget_P->addGraph();
+    ui->widget_T->setInteractions(QCP::iSelectPlottables);
+    ui->widget_P->setInteractions(QCP::iSelectPlottables);
 }
 
 void MainWindow::on_actionUpdate_available_ports_triggered()// кнопачка чтобы обновить список доступных портов
@@ -159,20 +165,20 @@ void MainWindow::sendDataAction(QString data)//Отправка данных п�
 void MainWindow::showResponceData(QString data) // Слот для отображения чего нибудь в строчку responce и лог файл
 {
     ui->textLineResponce->setText(data);
-    if(log_file.isOpen())
+    if(log_file->isOpen())
     {
         data.append('\n');
-        log_file.write(data.toLocal8Bit());
+        log_file->write(data.toLocal8Bit());
     } else
     {
-        log_file.setFileName("log.txt"); //Создание лог файла
-        if(!log_file.open(QIODevice::ReadWrite))
+        log_file->setFileName("log.txt"); //Создание лог файла
+        if(!log_file->open(QIODevice::ReadWrite))
         {
             ui->textLineResponce->setText("Log file wrecked");
         }
-        log_file.readAll(); // перемещение текущей позиции в конец файла
-        log_file.write(QTime::currentTime().toString().toLocal8Bit()); // начальная строчка с указанем текущего времени(надо сделать еще и дату)
-        log_file.write("It had wrecked \n");
+        log_file->readAll(); // перемещение текущей позиции в конец файла
+        log_file->write(QTime::currentTime().toString().toLocal8Bit()); // начальная строчка с указанем текущего времени(надо сделать еще и дату)
+        log_file->write("It had wrecked \n");
     }
     return;
 }
@@ -322,12 +328,7 @@ void MainWindow::scanBauds() // функция для перебора всех 
 
 MainWindow::~MainWindow()//При закрытии окошка
 {
-     //delete timer;
-    log_file.write("Closed\n");
-    log_file.close();
-    reserve_file.close();
-    serial->close();
-    delete serial;
+     //delete timer;.
     delete ui; // чисти, чисти
 }
 
@@ -393,8 +394,8 @@ void MainWindow::Plot() //Одна итерация перестроения г�
     double value;
 
     reply.append(", " + QString::number(currentTime));
-    reserve_file.write(reply.append("\n").toLocal8Bit());
-    reserve_file.flush();
+    reserve_file->write(reply.append("\n").toLocal8Bit());
+    reserve_file->flush();
 
     if (ui->checkBox_1->isChecked())
     {
@@ -545,7 +546,7 @@ void MainWindow::ReadUnits() //Функция для считывания спи
     UnitList = reply.split(", ");
 
     reply.append(", ms\n");
-    reserve_file.write(reply.toLocal8Bit());
+    reserve_file->write(reply.toLocal8Bit());
 
     ui->comboBox_Output->clear();
     if(UnitList.length() != NameList.length())
@@ -758,30 +759,30 @@ void MainWindow::on_pushButton_Plot_clicked()//Вечный(нет) цикл
     {
         if(ui->pushButton_Plot->text() == "PLOT")
         {
-            if(reserve_file.isOpen())
+            if(reserve_file->isOpen())
             {
-                reserve_file.close();
+                reserve_file->close();
             }
             QString name;
             QDateTime time;
             time = QDateTime::currentDateTime();
 
             name = "data/Reserve_file_"+time.toString("dd_MM_yyyy_hh_mm_ss") + ".txt";
-            reserve_file.setFileName(name);
-            if(!reserve_file.open(QIODevice::WriteOnly))
+            reserve_file->setFileName(name);
+            if(!reserve_file->open(QIODevice::WriteOnly))
             {
                 emit responce("Reserve file wrecked");
             }
 
             foreach (QString Name, NameList) {
-                reserve_file.write(Name.append(", ").toLocal8Bit());
+                reserve_file->write(Name.append(", ").toLocal8Bit());
             }
-            reserve_file.write(", Time\n");
+            reserve_file->write(", Time\n");
 
             foreach (QString Unit, UnitList) {
-                reserve_file.write(Unit.append(", ").toLocal8Bit());
+                reserve_file->write(Unit.append(", ").toLocal8Bit());
             }
-            reserve_file.write(", ms\n");
+            reserve_file->write(", ms\n");
 
 
 
@@ -904,7 +905,7 @@ void MainWindow::on_pushButton_Check_clicked()//Проверка сПИДа
     return;
 }
 
-void MainWindow::on_checkBox_fixPlot_T_clicked()
+void MainWindow::on_checkBox_fixPlot_T_clicked()//Разрешение пользователю крутить график при нажатии фикс плота
 {
     if(ui->checkBox_fixPlot_T->isChecked())
     {
@@ -916,7 +917,7 @@ void MainWindow::on_checkBox_fixPlot_T_clicked()
     }
 }
 
-void MainWindow::on_checkBox_fixPlot_P_clicked()
+void MainWindow::on_checkBox_fixPlot_P_clicked()//Разрешение пользователю крутить график при нажатии фикс плота
 {
     if(ui->checkBox_fixPlot_P->isChecked())
     {
@@ -939,17 +940,23 @@ void MainWindow::on_pushButton_Export_clicked()
         emit responce("Set another name");
         return;
     }
-    if (reserve_file.isOpen())
+    if (reserve_file->isOpen())
     {
         if (ui->lineEdit_FileName_Export->text().remove(" ", Qt::CaseInsensitive)!="")
         {
-            if(reserve_file.copy(Name))
+            if(reserve_file->copy(Name))
             {
-                reserve_file.open(QIODevice::ReadWrite);
-                reserve_file.readAll();
+                reserve_file->open(QIODevice::ReadWrite);
+                reserve_file->readAll();
                 return;
             }
         }
     }
     emit responce("File wasn't created");
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    log_file->write("Closed\n");
+    QMainWindow::closeEvent(event);
 }
