@@ -10,6 +10,9 @@ QT.testlib.CONFIG -= console
 
 CONFIG   += c++11
 
+RC_FILE = Rc.rc
+
+QMAKE_LFLAGS += -static -static-libgcc
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
 

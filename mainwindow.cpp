@@ -767,7 +767,7 @@ void MainWindow::on_pushButton_Plot_clicked()//Вечный(нет) цикл
             QDateTime time;
             time = QDateTime::currentDateTime();
 
-            name = "data/Reserve_file_"+time.toString("dd_MM_yyyy_hh_mm_ss") + ".txt";
+            name = "data/Reserve_file_"+time.toString("dd_MM_yyyy_hh_mm_ss") + ".dat";
             reserve_file->setFileName(name);
             if(!reserve_file->open(QIODevice::WriteOnly))
             {
@@ -777,12 +777,12 @@ void MainWindow::on_pushButton_Plot_clicked()//Вечный(нет) цикл
             foreach (QString Name, NameList) {
                 reserve_file->write(Name.append(", ").toLocal8Bit());
             }
-            reserve_file->write(", Time\n");
+            reserve_file->write("Time\n");
 
             foreach (QString Unit, UnitList) {
                 reserve_file->write(Unit.append(", ").toLocal8Bit());
             }
-            reserve_file->write(", ms\n");
+            reserve_file->write("s\n");
 
 
 
