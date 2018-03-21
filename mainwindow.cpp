@@ -384,16 +384,21 @@ void MainWindow::SetColour(QString colour, const int n, QString index) //цве�
 
 void MainWindow::Plot() //Одна итерация перестроения графиков
 {
-
+    double currentSystemTime;
     QStringList ValueList;
     sendDataAction("getoutput");
     QString reply = readDataAction();
+    if(reply == "")
+    {
+        return;
+    }
     ValueList = reply.split(",");
 
+    currentSystemTime = QTime::currentTime().msecsSinceStartOfDay()/1000.0;
     currentTime = QDateTime::currentDateTime().toMSecsSinceEpoch()/1000.0 - timeStart;
     double value;
 
-    reply.append(", " + QString::number(currentTime));
+    reply.append(", " + QString::number(currentTime) + ", " + QString::number(currentSystemTime, 'g', 8));
     reserve_file->write(reply.append("\n").toLocal8Bit());
     reserve_file->flush();
 
@@ -544,9 +549,6 @@ void MainWindow::ReadUnits() //Функция для считывания спи
     QString reply = readDataAction();
 
     UnitList = reply.split(", ");
-
-    reply.append(", ms\n");
-    reserve_file->write(reply.toLocal8Bit());
 
     ui->comboBox_Output->clear();
     if(UnitList.length() != NameList.length())
@@ -755,9 +757,9 @@ void MainWindow::on_pushButton_Start_PID_clicked() //Запуск сПИДа
 
 void MainWindow::on_pushButton_Plot_clicked()//Вечный(нет) цикл
 {
-    if(serial->isOpen())
+    if(ui->pushButton_Plot->text() == "PLOT")
     {
-        if(ui->pushButton_Plot->text() == "PLOT")
+        if(serial->isOpen())
         {
             if(reserve_file->isOpen())
             {
@@ -777,7 +779,7 @@ void MainWindow::on_pushButton_Plot_clicked()//Вечный(нет) цикл
             foreach (QString Name, NameList) {
                 reserve_file->write(Name.append(", ").toLocal8Bit());
             }
-            reserve_file->write("Time\n");
+            reserve_file->write("Time, SystemTime\n");
 
             foreach (QString Unit, UnitList) {
                 reserve_file->write(Unit.append(", ").toLocal8Bit());
@@ -804,19 +806,19 @@ void MainWindow::on_pushButton_Plot_clicked()//Вечный(нет) цикл
                 Plot();
                 QTest::qWait(50);
             }
-        } else
-        {
-            run = false;
-            ui->pushButton_Plot->setText("PLOT");
-            for (int i = 0; i<5; i++)
-            {
-                ui->widget_T->graph(i)->data().data()->clear();
-            }
-            for (int i = 0; i<5; i++)
-            {
-                ui->widget_P->graph(i)->data().data()->clear();
-            }            
         }
+    }else
+    {
+    run = false;
+    ui->pushButton_Plot->setText("PLOT");
+    for (int i = 0; i<5; i++)
+    {
+        ui->widget_T->graph(i)->data().data()->clear();
+    }
+    for (int i = 0; i<5; i++)
+    {
+        ui->widget_P->graph(i)->data().data()->clear();
+    }
     }
 }
 
