@@ -64,6 +64,7 @@ public slots:
         QString sendAndRead(QString data);
         void setIndexList(QList<int> indexList);
         void finish();
+        void create();
 };
 
 #endif // PTC10_H

@@ -1,9 +1,8 @@
 #include "ptc10.h"
+#include <QThread>
 
-PTC10::PTC10(QObject *parent) : QObject(parent)
+PTC10::PTC10(QObject *parent) : QObject(parent)//ЗДЕСЬ НЕ ДОЛЖНО БЫТЬ НИЧЕГО ПОТОМУ ЧТО ВСЁ ЧТО ЗДЕСЬ ПРОИСХОДИТ, ПРОИСХОДИТ В ДРУГОМ ПОТОКЕ
 {
-    serial = new QSerialPort(this); // переменная для подключения по COM порту
-    reserveFile = new QFile(this);
 }
 
 bool PTC10::isOpen() //На случай если я захочу вдруг извне проверить что COM порт открыт
@@ -106,7 +105,7 @@ void PTC10::connect(QString portName)
             emit responce("Device not found");
         } else
         {
-            emit responce ("SerialPort error number " + QString::number(getError));
+            emit responce("SerialPort error number " + QString::number(getError));
         }
         return; // если попытка подключения умерла на взлете
     }
@@ -360,6 +359,8 @@ void PTC10::pidStart(QString output, QStringList pidStatus)
                 message = output;
                 message.append(".pid.input = ");
                 message.append(pidStatus.at(4));
+                sendDataAction(message);
+                readDataAction();
 
                 message = "outputenable = on";
                 sendDataAction(message);
@@ -588,8 +589,15 @@ void PTC10::finish()
     this->~PTC10();
 }
 
+void PTC10::create()
+{
+    serial = new QSerialPort(this); // переменная для подключения по COM порту
+    reserveFile = new QFile(this);
+}
+
 PTC10::~PTC10()
 {
+    this->thread()->exit();
     delete serial;
 }
 

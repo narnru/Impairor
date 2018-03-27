@@ -44,10 +44,10 @@ private slots:
     void on_actionUpdate_available_ports_triggered();
     void on_pushButton_Recieve_clicked();
     void on_pushButton_Send_clicked();
-    QString readDataAction();
-    void sendDataAction(QString data);
+//    QString readDataAction();
+//    void sendDataAction(QString data);
     void showResponceData(const QString data);
-    void Plot();
+//    void Plot();
     void ReadNames(QStringList nameList);
     void ReadUnits(QStringList unitList, QStringList outputList);
     void on_actionCalibrate_wait_time_triggered();
@@ -70,12 +70,22 @@ private slots:
     void addDataToGraphT(const int index, double value, double time);
     void addDataToGraphP(const int index, double value, double time);
     void updateGraphs();
+    void plotHadStopped();
 
 signals:
     void responce(const QString data);
     void sendIndexList(QList <int> indexList);
     void finishIt();
-
+    void requestForCalibrateWaitTime();
+    void requestForSendAndRead(QString data);
+    void requestForConnect(QString);
+    void requestForDisconnect();
+    void requestForPowerStart(QString output, float power);
+    void requestForPIDStart(QString output, QStringList pidStatus);
+    void requestForPlotStart();
+    void requestForPlotStop();
+    void requestForPIDScan(QString output);
+    void requestForExport(QString Name);
 
 public:
     explicit MainWindow(QWidget *parent = 0);
