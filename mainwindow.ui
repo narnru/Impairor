@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>819</width>
-    <height>695</height>
+    <width>800</width>
+    <height>739</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,7 +17,7 @@
    <bool>false</bool>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <widget class="QGroupBox" name="groupBox">
+   <widget class="QGroupBox" name="groupBoxOutput1">
     <property name="enabled">
      <bool>true</bool>
     </property>
@@ -129,7 +129,7 @@
      </item>
     </layout>
    </widget>
-   <widget class="QGroupBox" name="groupBox_2">
+   <widget class="QGroupBox" name="groupBoxPower">
     <property name="geometry">
      <rect>
       <x>350</x>
@@ -188,13 +188,13 @@
      </layout>
     </widget>
    </widget>
-   <widget class="QGroupBox" name="groupBox_3">
+   <widget class="QGroupBox" name="groupBoxPID">
     <property name="geometry">
      <rect>
       <x>10</x>
       <y>430</y>
       <width>311</width>
-      <height>121</height>
+      <height>131</height>
      </rect>
     </property>
     <property name="title">
@@ -328,77 +328,6 @@
      </layout>
     </widget>
    </widget>
-   <widget class="QWidget" name="layoutWidget">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>560</y>
-      <width>661</width>
-      <height>71</height>
-     </rect>
-    </property>
-    <layout class="QHBoxLayout" name="horizontalLayout_2">
-     <item>
-      <layout class="QGridLayout" name="gridLayout">
-       <item row="0" column="0">
-        <widget class="QLabel" name="label_2">
-         <property name="text">
-          <string>Command</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="2">
-        <widget class="QPushButton" name="pushButton_Send">
-         <property name="text">
-          <string>Send</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="label_3">
-         <property name="text">
-          <string>Responce</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QLineEdit" name="textLineResponce"/>
-       </item>
-       <item row="1" column="2">
-        <widget class="QPushButton" name="pushButton_Recieve">
-         <property name="text">
-          <string>Recieve</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QLineEdit" name="textLineSend"/>
-       </item>
-      </layout>
-     </item>
-     <item>
-      <layout class="QGridLayout" name="gridLayout_2">
-       <item row="0" column="0">
-        <widget class="QLabel" name="label_13">
-         <property name="text">
-          <string>File Name</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QLineEdit" name="lineEdit_FileName_Export"/>
-       </item>
-       <item row="0" column="2">
-        <widget class="QPushButton" name="pushButton_Export">
-         <property name="text">
-          <string>Export</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-    </layout>
-   </widget>
    <widget class="QCustomPlot" name="widget_T" native="true">
     <property name="geometry">
      <rect>
@@ -419,7 +348,7 @@
      </rect>
     </property>
    </widget>
-   <widget class="QGroupBox" name="groupBox_4">
+   <widget class="QGroupBox" name="groupBoxOutput2">
     <property name="enabled">
      <bool>true</bool>
     </property>
@@ -483,7 +412,7 @@
      </item>
     </layout>
    </widget>
-   <widget class="QGroupBox" name="groupBox_5">
+   <widget class="QGroupBox" name="groupBoxOutput3">
     <property name="enabled">
      <bool>true</bool>
     </property>
@@ -547,7 +476,7 @@
      </item>
     </layout>
    </widget>
-   <widget class="QGroupBox" name="groupBox_6">
+   <widget class="QGroupBox" name="groupBoxOutput4">
     <property name="enabled">
      <bool>true</bool>
     </property>
@@ -611,7 +540,7 @@
      </item>
     </layout>
    </widget>
-   <widget class="QGroupBox" name="groupBox_7">
+   <widget class="QGroupBox" name="groupBoxOutput5">
     <property name="enabled">
      <bool>true</bool>
     </property>
@@ -689,7 +618,7 @@
     <property name="geometry">
      <rect>
       <x>700</x>
-      <y>560</y>
+      <y>570</y>
       <width>75</width>
       <height>23</height>
      </rect>
@@ -724,30 +653,114 @@
      <string>FixPlot</string>
     </property>
    </widget>
+   <widget class="QGroupBox" name="groupBoxFile">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>570</y>
+      <width>681</width>
+      <height>111</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string/>
+    </property>
+    <widget class="QWidget" name="layoutWidget">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>30</y>
+       <width>661</width>
+       <height>71</height>
+      </rect>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <item>
+       <layout class="QGridLayout" name="gridLayout">
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_2">
+          <property name="text">
+           <string>Command</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2">
+         <widget class="QPushButton" name="pushButton_Send">
+          <property name="text">
+           <string>Send</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_3">
+          <property name="text">
+           <string>Responce</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QLineEdit" name="textLineResponce"/>
+        </item>
+        <item row="1" column="2">
+         <widget class="QPushButton" name="pushButton_Recieve">
+          <property name="text">
+           <string>Recieve</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QLineEdit" name="textLineSend"/>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QGridLayout" name="gridLayout_2">
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_13">
+          <property name="text">
+           <string>File Name</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QLineEdit" name="lineEdit_FileName_Export"/>
+        </item>
+        <item row="0" column="2">
+         <widget class="QPushButton" name="pushButton_Export">
+          <property name="text">
+           <string>Export</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </widget>
    <zorder>layoutWidget</zorder>
-   <zorder>layoutWidget</zorder>
-   <zorder>groupBox</zorder>
+   <zorder>groupBoxOutput1</zorder>
    <zorder>line_2</zorder>
-   <zorder>groupBox_2</zorder>
-   <zorder>groupBox_3</zorder>
+   <zorder>groupBoxPower</zorder>
+   <zorder>groupBoxPID</zorder>
    <zorder>widget_T</zorder>
    <zorder>widget_P</zorder>
-   <zorder>groupBox_4</zorder>
-   <zorder>groupBox_5</zorder>
-   <zorder>groupBox_6</zorder>
-   <zorder>groupBox_7</zorder>
+   <zorder>groupBoxOutput2</zorder>
+   <zorder>groupBoxOutput3</zorder>
+   <zorder>groupBoxOutput4</zorder>
+   <zorder>groupBoxOutput5</zorder>
    <zorder>comboBox_Output</zorder>
    <zorder>pushButton_Plot</zorder>
    <zorder>checkBox_fixPlot_T</zorder>
    <zorder>checkBox_fixPlot_P</zorder>
+   <zorder>groupBoxFile</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>819</width>
-     <height>21</height>
+     <width>800</width>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuOptional">

@@ -1,22 +1,35 @@
 ﻿#include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include <QWidget>
-#include <QTime>
-#include <math.h>
-#include <iostream>
-#include <QDir>
+
 
 MainWindow::MainWindow(QWidget *parent) : // То что произойдет в нулевой момент времени при создании окошка
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
+//"this" в скобочках символизирует то что данное окошко является родителем для всех этих переменных
+//А значит раз оно их породило то оно их и убъет
+
     ui->setupUi(this); //Хз что это
-    serial = new QSerialPort(this); // переменная для подключения по COM порту
-    log_file = new QFile(this);
-    reserve_file = new QFile(this);
+    serial = new QSerialPort(this);
+    log_file = new QFile(this); // Лог файл
+    reserve_file = new QFile(this); // Резервный файл
+    device = new PTC10(this); // класс в котором должны лежать все функции связанные с работой термоконтроллера
+
+// Небесполезная тренировка пользования системой сигнал слот
+    connect(device, SIGNAL(responce(QString)), this, SLOT(showResponceData(QString)));
+    connect(device, SIGNAL(connected()), this, SLOT(gotConnected()));
+    connect(device, SIGNAL(readNamesResult(QStringList)), this, SLOT(ReadNames(QStringList)));
+    connect(device, SIGNAL(readUnitsResult(QStringList,QStringList)), this, SLOT(ReadUnits(QStringList,QStringList)));
+    connect(device, SIGNAL(pidScanResult(QStringList)), this, SLOT(pid_Scan(QStringList)));
+    connect(this, SIGNAL(sendIndexList(QList<int>)), device, SLOT(setIndexList(QList<int>)));
+    connect(device, SIGNAL(dataForGraph_P(int,double,double)), this, SLOT(addDataToGraphP(int,double,double)));
+    connect(device, SIGNAL(dataForGraph_T(int,double,double)), this , SLOT(addDataToGraphT(int,double,double)));
+    connect(device, SIGNAL(updateGraphs()), this, SLOT(updateGraphs()));
+    connect(this, SIGNAL(finishIt()), device, SLOT(finish()));
 
 
-    // Заполнение ComboBox-a
+// Заполнение ComboBox-ов связанных с цветами графиков
+
     QStringList Colours;
     Colours.push_back("Black");
     Colours.push_back("Red");
@@ -34,17 +47,25 @@ MainWindow::MainWindow(QWidget *parent) : // То что произойдет в
     ui->comboBox_Colour_5->clear();
     ui->comboBox_Colour_5->addItems(Colours);
 
+//Установка изначальной позиции на разные цвета потому что так удобнее
+
     ui->comboBox_Colour_1->setCurrentIndex(0);
     ui->comboBox_Colour_2->setCurrentIndex(1);
     ui->comboBox_Colour_3->setCurrentIndex(2);
     ui->comboBox_Colour_4->setCurrentIndex(3);
     ui->comboBox_Colour_5->setCurrentIndex(4);
 
-    on_actionUpdate_available_ports_triggered();// Получение списка доступных портов
+// Получение списка доступных портов
+
+    on_actionUpdate_available_ports_triggered();
+
+//+-бесполезная тренировка пользования системой сигнал слот
 
     connect(this, SIGNAL(responce(QString)),
             this, SLOT(showResponceData(QString)));
 
+//В случае если в папке где находится ехе файл нет нужной директории куда складывать данные то надо бы её создать
+//!!Чисто формально пользователь может её удалить и что-нить сломается
     QDir dir;
     dir = QDir::current();
     if(!dir.exists("data"))
@@ -52,23 +73,31 @@ MainWindow::MainWindow(QWidget *parent) : // То что произойдет в
         dir.mkdir("data");
     }
 
-    log_file->setFileName("data/log.txt"); //Создание лог файла
-    if(!log_file->open(QIODevice::ReadWrite))
+//Создание лог файла
+
+    log_file->setFileName("data/log.txt");
+    if(!log_file->open(QIODevice::ReadWrite)) //на случай если не получится открыть(ну мало ли вдруг кто то параллельно юзает)
     {
         ui->textLineResponce->setText("Log file wrecked");
     }
 
+//Запись времени начала измерения в лог файл
 
     QDateTime time = QDateTime::currentDateTime();
     log_file->readAll(); // перемещение текущей позиции в конец файла
-    log_file->write(time.toString("dd.MM.yyyy hh:mm:ss").toLocal8Bit()); // начальная строчка с указанем текущего времени(надо сделать еще и дату)
+    log_file->write(time.toString("dd.MM.yyyy hh:mm:ss").toLocal8Bit()); // начальная строчка с указанем текущей даты
     log_file->write(" \n");
+
+// Установление стандартных параметров для графика температуры
+// Нужно тоже самое для мощности (наверно)
 
     ui->widget_T->xAxis->setLabel("Time"); // Оси графика для температуры
     ui->widget_T->yAxis->setLabel("Value");
     ui->widget_T->yAxis->setRange(-1.5, 1.5); // временно
     ui->widget_T->clearGraphs();
 
+// Чтобы гарантировать что мы всегда сможем обратиться к графику
+
     ui->widget_T->addGraph();
     ui->widget_T->addGraph();
     ui->widget_T->addGraph();
@@ -80,8 +109,21 @@ MainWindow::MainWindow(QWidget *parent) : // То что произойдет в
     ui->widget_P->addGraph();
     ui->widget_P->addGraph();
     ui->widget_P->addGraph();
+
+// Просто так
+
     ui->widget_T->setInteractions(QCP::iSelectPlottables);
     ui->widget_P->setInteractions(QCP::iSelectPlottables);
+
+    ui->groupBoxOutput1->hide();
+    ui->groupBoxOutput2->hide();
+    ui->groupBoxOutput3->hide();
+    ui->groupBoxOutput4->hide();
+    ui->groupBoxOutput5->hide();
+    ui->groupBoxPID->hide();
+    ui->groupBoxPower->hide();
+    ui->pushButton_Plot->hide();
+    ui->comboBox_Output->hide();
 }
 
 void MainWindow::on_actionUpdate_available_ports_triggered()// кнопачка чтобы обновить список доступных портов
@@ -97,68 +139,18 @@ void MainWindow::on_actionUpdate_available_ports_triggered()// кнопачка 
 
 void MainWindow::on_actionCalibrate_wait_time_triggered()// кнопачка чтобы попытаться откалибровать время
 {
-    if(serial->isOpen())
-    {
-        QString query = "*IDN?\n";
-        QString fullAnswer;
-        QString answer;
-
-        readDataAction();
-        sendDataAction(query);
-        fullAnswer = readDataAction();
-        answer = fullAnswer;
-
-        while(answer  == fullAnswer)
-        {
-            sendDataAction(query);
-            answer = readDataAction();
-            additionalWaitTime -= 1;
-
-            if (additionalWaitTime == 1)
-            {
-                break;
-            }
-            QApplication::processEvents();
-
-        }
-        additionalWaitTime += 5;
-        fullAnswer = readDataAction();
-    } else
-    {
-        emit responce("Connect to smth first, please.");
-    }
+    device->calibrateWaitTime();
     return;
 }
 
 QString MainWindow::readDataAction() //Считывание данных из буффера + ожидание новых данных. Если там оказалось что-то чего ты не ожидал увидеть - твои проблемы.
 {
-    QByteArray temp;
-    QString reply;
-    if (serial->isOpen())
-    {
-        temp = serial->readAll();
-        if(serial->waitForReadyRead(100)) {
-            temp += serial->readAll();
-            while(serial->waitForReadyRead(additionalWaitTime))
-            {
-                temp += serial->readAll();
-            }
-        }
-    }
-    reply = QString(temp);
-    reply.remove(QChar('\n'), Qt::CaseInsensitive);
-    reply.remove(QChar('\r'), Qt::CaseInsensitive);
-
-    return reply;
+    return device->readDataAction();
 }
 
-void MainWindow::sendDataAction(QString data)//Отправка данных пациенту. Ну или запросов. Ну или порнографии. Мало ли на что у меня совести хватит.
+void MainWindow::sendDataAction(QString data)
 {
-    if (serial->isOpen())
-    {  
-        data.append('\n');
-        serial->write(data.toLocal8Bit());
-    }
+    device->sendDataAction(data);
     return;
 }
 
@@ -185,145 +177,32 @@ void MainWindow::showResponceData(QString data) // Слот для отобра�
 
 void MainWindow::on_pushButton_Recieve_clicked()//кнопачка чтобы считать данные из буфера. Нет не подождать данных. Считать из буффера
 {
-    QByteArray temp;
-    if(serial->isOpen())
-    {
-        temp = serial->readAll();
-        ui->textLineResponce->setText(QString(temp));
-    } else
-    {
-        ui->textLineResponce->setText("Connect to something first, please");
-    }
+    QByteArray temp = "";
+    ui->textLineResponce->setText(QString(temp));
     return;
 }
 
-void MainWindow::on_pushButton_Send_clicked() // Для желающих общаться с теромоконтроллером лапками
+void MainWindow::on_pushButton_Send_clicked() // Для желающих общаться с теромоконтроллером лапками. МНУ. ЭТО МНУ! Я ОДИН ТАКОЙ.
 {
     QString msg;
     msg = ui->textLineSend->text();
-    if(serial->isOpen())
-    {
-        sendDataAction(msg);
-        showResponceData(readDataAction());
-    } else
-    {
-        ui->textLineResponce->setText("Connect to something first, please");
-    }
+    device->sendAndRead(msg);
     return;
 }
 
 void MainWindow::on_pushButton_Connect_TC_clicked()//кнопачка чтобы совокупить прогу и контроллер
 {
     if(ui->pushButton_Connect_TC->text() == "Connect")
-        {
-        serial->setDataBits(QSerialPort::Data8);//Значения по мануалу такие
-        serial->setStopBits(QSerialPort::OneStop);//Работает не трогай
-        serial->setParity(QSerialPort::NoParity);//Если сломается то скорее всего не здесь
-        serial->setFlowControl(QSerialPort::HardwareControl);
+    {
+        device->connect(ui->comboBoxPortName->currentText());
 
-        serial->setBaudRate(QSerialPort::Baud9600);//дефолт. ЭТО ТРОГАТЬ МОЖНО.
-        serial->setPortName(ui->comboBoxPortName->currentText()); //пока что выбирать порт будем лапками
-
-        if (!serial->open(QIODevice::ReadWrite)) //попытка подключится с дефолтными параметрами
-        {
-            QSerialPort::SerialPortError getError = QSerialPort::NoError;
-            getError = serial->error();
-            if (getError == QSerialPort::DeviceNotFoundError)
-            {
-                emit responce("Device not found");
-            } else
-            {
-                emit responce ("SerialPort error number " + QString::number(getError));
-            }
-            return; // если попытка подключения умерла на взлете
-        }
-
-        QString query = "\n *IDN?";  //команда запроса прибору от Stanford Research Systems чтобы узнать что он такое
-        QString answer;
-
-        sendDataAction(query); // запрос прибору...
-        answer = readDataAction(); //попытка получить ответ
-
-        if(!answer.contains("Stanford")) // если ответ не такой как хотелось бы то попробуем перебрать изменяемые внутри прибора характеристики
-        {
-            scanBauds();
-            sendDataAction(query);
-            answer = readDataAction();
-        }
-
-        if(!answer.contains("PTC10"))  // финальная проверка тот ли ответ
-        {
-            if(answer.contains("Stanford"))
-            {
-                emit responce("It's another Stanford device");
-            }else
-            {
-                emit responce("Unknown Device");
-            }
-            serial->close();
-            return;
-        } else
-        {
-            ui->pushButton_Connect_TC->setText("Disconnect");
-            ReadNames();
-            ReadUnits();
-            QApplication::processEvents();
-            pid_Scan();
-            return;
-        }
     } else //Дисконнект
     {
-        serial->close();
+        device->disconnect();
         ui->pushButton_Connect_TC->setText("Connect");
         return;
     }
     return; //Я конечно не знаю как сюда можно попасть но пусть будет.
-}
-
-void MainWindow::scanBauds() // функция для перебора всех возможных baudrate, будет смешно если она случайно подключится не к стэнфордскому прибору.
-{
-    QList<qint32> bauds;
-    bauds.append(QSerialPort::Baud19200);
-    bauds.append(QSerialPort::Baud4800);
-    bauds.append(QSerialPort::Baud1200);
-    bauds.append(QSerialPort::Baud2400);
-    bauds.append(QSerialPort::Baud38400);
-    bauds.append(QSerialPort::Baud57600);
-    bauds.append(QSerialPort::Baud115200);
-    bauds.append(qint32(230400)); //это извращение увидел в настройках контроллера
-
-    QString query = "\n *IDN?";//первый \n призван почистить все накопившееся на входе контроллера
-    QString answer;
-
-    foreach(qint32 baud, bauds) //для всех возможных baudrates попробуем получить информацию о приборе
-    {
-        serial->setBaudRate(baud);
-        QTest::qWait(1000); //КОСТЫЛЬ. Я НЕ ЗНАЮ ПОЧЕМУ К СТАРОМУ КОНТРОЛЛЕРУ ОН БЕЗ ЭТОГО КРИВО ПОДКЛЮЧАЕТСЯ
-        if (serial->isOpen())
-        {
-            sendDataAction(query);
-            QApplication::processEvents();
-            answer = readDataAction();
-
-            if(answer.contains("Stanford")) //если ответ нормальный то выйдем из сканирования
-            {
-                return;
-            }
-        } else
-        {
-            if(serial->open(QIODevice::ReadWrite))
-            {
-                sendDataAction(query);
-                answer = readDataAction();
-
-                if(answer.contains("Stanford")) //если ответ нормальный то выйдем из сканирования
-                {
-                    return;
-                }
-            }
-        }
-    }
-    return; //если не получилось то ну и ладно. Тут по хорошему нужно бы сделать возврат ошибки но мне лень
 }
 
 MainWindow::~MainWindow()//При закрытии окошка
@@ -513,18 +392,9 @@ void MainWindow::Plot() //Одна итерация перестроения г�
     }
 }
 
-void MainWindow::ReadNames() //Функция для считывания списка имен доступных каналов данных на PTC10
+void MainWindow::ReadNames(QStringList nameList) //Функция для считывания списка имен доступных каналов данных на PTC10
 {
-    QString message = "getOutput.Names";
-    sendDataAction(message);
-
-    QString reply = readDataAction();
-
-    reply.remove(QChar(' '), Qt::CaseInsensitive);
-
-    NameList = reply.split(",");
-
-
+    NameList = nameList;
 
     ui->comboBox_OutPut_1->clear();
     ui->comboBox_OutPut_2->clear();
@@ -532,23 +402,18 @@ void MainWindow::ReadNames() //Функция для считывания спи
     ui->comboBox_OutPut_4->clear();
     ui->comboBox_OutPut_5->clear();
     ui->comboBox_Input_PID->clear();
-    ui->comboBox_OutPut_1->addItems(NameList);
-    ui->comboBox_OutPut_2->addItems(NameList);
-    ui->comboBox_OutPut_3->addItems(NameList);
-    ui->comboBox_OutPut_4->addItems(NameList);
-    ui->comboBox_OutPut_5->addItems(NameList);
-    ui->comboBox_Input_PID->addItems(NameList);
+    ui->comboBox_OutPut_1->addItems(nameList);
+    ui->comboBox_OutPut_2->addItems(nameList);
+    ui->comboBox_OutPut_3->addItems(nameList);
+    ui->comboBox_OutPut_4->addItems(nameList);
+    ui->comboBox_OutPut_5->addItems(nameList);
+    ui->comboBox_Input_PID->addItems(nameList);
+    return;
 }
 
-void MainWindow::ReadUnits() //Функция для считывания списка единиц измерения в доступных каналах данных на PTC10
+void MainWindow::ReadUnits(QStringList unitList, QStringList outputList) //Функция для считывания списка единиц измерения в доступных каналах данных на PTC10
 {
-    QString message = "getOutput.Units";
-    sendDataAction(message);
-    int i;
-
-    QString reply = readDataAction();
-
-    UnitList = reply.split(", ");
+    UnitList = unitList;
 
     ui->comboBox_Output->clear();
     if(UnitList.length() != NameList.length())
@@ -556,202 +421,47 @@ void MainWindow::ReadUnits() //Функция для считывания спи
         emit responce("smth gone very wrong while reading units");
         return;
     }
-    for(i = 0; i < UnitList.length(); i++)
-    {
-//        QApplication::processEvents();
-        if (UnitList.at(i).contains("W") or UnitList.at(i).contains("A") or UnitList.at(i).contains("V"))
-        {
-            message = NameList.at(i);
-            message.append(".list");
 
-            sendDataAction(message);
-            reply = readDataAction();
-
-            if (reply.contains("pid"))
-            {
-                ui->comboBox_Output->addItem(NameList.at(i));
-            }
-        }
-    }
+    ui->comboBox_Output->addItems(outputList);
     return;
 }
 
 void MainWindow::on_pushButton_Start_Power_clicked() //Функция для задания фиксированной мощности на термоконтроллере. По дороге выключается пид и включается возможность подавать мощность
 {
-    QString reply;
-    QString message;
-    float power;
+    QString output = ui->comboBox_Output->currentText();
+    float power = ui->lineEdit_power->text().toFloat();
 
-    if(serial->isOpen())
+    if (output != "")
     {
-        if(ui->comboBox_Output->currentText() == "")
-        {
-            emit responce("No output detected");
-            return;
-        } else
-        {
-            message = ui->comboBox_Output->currentText();
-            message.append(".list");
-
-            sendDataAction(message);
-            reply = readDataAction();
-            if(reply.contains("pid"))
-            {
-                message = ui->comboBox_Output->currentText();
-                message.append(".pid.mode = off");
-                sendDataAction(message);
-                readDataAction();
-
-                message = "outputenable = on";
-                sendDataAction(message);
-                readDataAction();
-
-                message = ui->comboBox_Output->currentText();
-                message.append(".value = ");
-                reply = ui->lineEdit_power->text();
-                power = reply.toFloat();
-                message.append(QString::number(power, 'f', 2));
-                sendDataAction(message);
-                readDataAction();
-
-
-            }else
-            {
-                emit responce("This is not an output, smth gone very wrong");
-                return;
-            }
-        }
-    }else
-    {
-        emit responce("Connect to smth first, please");
-        return;
+        device->powerStart(output, power);
     }
+
     return;
 }
 
-void MainWindow::pid_Scan() //Функция для считывания текущих параметров сПИДа
+void MainWindow::pid_Scan(QStringList pidStatus) //Функция для считывания текущих параметров сПИДа
 {
-    QString message;
-    QString reply;
-
-    if(serial->isOpen())
-    {
-        message = ui->comboBox_Output->currentText();
-        message.append(".pid.p?");
-        sendDataAction(message);
-        reply = readDataAction();
-
-        ui->pid_LineEdit_P->setText(reply);
-
-        message = ui->comboBox_Output->currentText();
-        message.append(".pid.d?");
-        sendDataAction(message);
-        reply = readDataAction();
-
-        ui->pid_LineEdit_D->setText(reply);
-
-        message = ui->comboBox_Output->currentText();
-        message.append(".pid.i?");
-        sendDataAction(message);
-        reply = readDataAction();
-
-        ui->pid_LineEdit_I->setText(reply);
-
-        message = ui->comboBox_Output->currentText();
-        message.append(".pid.setpoint?");
-        sendDataAction(message);
-        reply = readDataAction();
-
-        ui->pid_LineEdit_Setpoint->setText(reply);
-
-        message = ui->comboBox_Output->currentText();
-        message.append(".pid.input?");
-        sendDataAction(message);
-        reply = readDataAction();
-
-        reply.remove(QChar(' '), Qt::CaseInsensitive);
-        ui->comboBox_Input_PID->setCurrentIndex(NameList.indexOf(reply));
-
-    }else
-    {
-        emit responce("pid scan failed");
-    }
+    PidStatus = pidStatus;
+    ui->pid_LineEdit_P->setText(pidStatus.at(0));
+    ui->pid_LineEdit_D->setText(pidStatus.at(1));
+    ui->pid_LineEdit_I->setText(pidStatus.at(2));
+    ui->pid_LineEdit_Setpoint->setText(pidStatus.at(3));
+    ui->comboBox_Input_PID->setCurrentIndex(NameList.indexOf(pidStatus.at(4)));
 }
 
 void MainWindow::on_pushButton_Start_PID_clicked() //Запуск сПИДа
 {
-    QString reply;
-    QString message;
-    float pid;
+    QStringList pidStatus;
+    QString output = ui->comboBox_Output->currentText();
 
-    if(serial->isOpen())
-    {
-        if(ui->comboBox_Output->currentText() == "")
-        {
-            emit responce("No output detected");
-        }else
-        {
-            message = ui->comboBox_Output->currentText();
-            message.append(".list");
+    pidStatus.append(ui->pid_LineEdit_P->text());
+    pidStatus.append(ui->pid_LineEdit_I->text());
+    pidStatus.append(ui->pid_LineEdit_D->text());
+    pidStatus.append(ui->pid_LineEdit_Setpoint->text());
+    pidStatus.append(ui->comboBox_Input_PID->currentText());
 
-            sendDataAction(message);
-            reply = readDataAction();
-            if(reply.contains("pid"))
-            {
-                message = ui->comboBox_Output->currentText();
-                message.append(".pid.p = ");
-                pid = ui->pid_LineEdit_P->text().toFloat();
-                message.append(QString::number(pid, 'f', 2));
-                sendDataAction(message);
-                readDataAction();
+    device->pidStart(output, pidStatus);
 
-                message = ui->comboBox_Output->currentText();
-                message.append(".pid.i = ");
-                pid = ui->pid_LineEdit_I->text().toFloat();
-                message.append(QString::number(pid, 'f', 2));
-                sendDataAction(message);
-                readDataAction();
-
-                message = ui->comboBox_Output->currentText();
-                message.append(".pid.d = ");
-                pid = ui->pid_LineEdit_D->text().toFloat();
-                message.append(QString::number(pid, 'f', 2));
-                sendDataAction(message);
-                readDataAction();
-
-
-                message = ui->comboBox_Output->currentText();
-                message.append(".pid.setpoint = ");
-                pid = ui->pid_LineEdit_Setpoint->text().toFloat();
-                message.append(QString::number(pid, 'f', 2));
-                sendDataAction(message);
-                readDataAction();
-
-                message = ui->comboBox_Output->currentText();
-                message.append(".pid.input = ");
-                message.append(ui->comboBox_Input_PID->currentText());
-
-
-                message = "outputenable = on";
-                sendDataAction(message);
-                readDataAction();
-
-                message = ui->comboBox_Output->currentText();
-                message.append(".pid.mode = on");
-                sendDataAction(message);
-                readDataAction();
-
-                return;
-            }else
-            {
-                emit responce("This is not an output, smth gone very wrong");
-                return;
-            }
-        }
-    }else
-    {
-        emit responce("Connect to smth first, please");
-    }
     return;
 }
 
@@ -759,66 +469,27 @@ void MainWindow::on_pushButton_Plot_clicked()//Вечный(нет) цикл
 {
     if(ui->pushButton_Plot->text() == "PLOT")
     {
-        if(serial->isOpen())
+        if(!plotIndexList.isEmpty())
         {
-            if(reserve_file->isOpen())
-            {
-                reserve_file->close();
-            }
-            QString name;
-            QDateTime time;
-            time = QDateTime::currentDateTime();
-
-            name = "data/Reserve_file_"+time.toString("dd_MM_yyyy_hh_mm_ss") + ".dat";
-            reserve_file->setFileName(name);
-            if(!reserve_file->open(QIODevice::WriteOnly))
-            {
-                emit responce("Reserve file wrecked");
-            }
-
-            foreach (QString Name, NameList) {
-                reserve_file->write(Name.append(", ").toLocal8Bit());
-            }
-            reserve_file->write("Time, SystemTime\n");
-
-            foreach (QString Unit, UnitList) {
-                reserve_file->write(Unit.append(", ").toLocal8Bit());
-            }
-            reserve_file->write("s\n");
-
-
-
-
-            timeStart = QDateTime::currentDateTime().toMSecsSinceEpoch()/1000.0;
-
-
-            index_1 = NameList.indexOf(ui->comboBox_OutPut_1->currentText());
-            index_2 = NameList.indexOf(ui->comboBox_OutPut_2->currentText());
-            index_3 = NameList.indexOf(ui->comboBox_OutPut_3->currentText());
-            index_4 = NameList.indexOf(ui->comboBox_OutPut_4->currentText());
-            index_5 = NameList.indexOf(ui->comboBox_OutPut_5->currentText());
-
+            emit sendIndexList(plotIndexList);
             ui->pushButton_Plot->setText("STOP");
-            run = true;
-
-            while (run)
-            {
-                Plot();
-                QTest::qWait(50);
-            }
+            device->plotStart();
+            }else
+        {
+            emit responce("What should I plot?");
         }
     }else
     {
-    run = false;
-    ui->pushButton_Plot->setText("PLOT");
-    for (int i = 0; i<5; i++)
-    {
-        ui->widget_T->graph(i)->data().data()->clear();
-    }
-    for (int i = 0; i<5; i++)
-    {
-        ui->widget_P->graph(i)->data().data()->clear();
-    }
+        device->plotStop();
+        ui->pushButton_Plot->setText("PLOT");
+        for (int i = 0; i<5; i++)
+        {
+            ui->widget_T->graph(i)->data().data()->clear();
+        }
+        for (int i = 0; i<5; i++)
+        {
+            ui->widget_P->graph(i)->data().data()->clear();
+        }
     }
 }
 
@@ -827,8 +498,16 @@ void MainWindow::on_checkBox_1_clicked() //попытка отключить о�
     if(ui->checkBox_1->isChecked())
     {
         ui->comboBox_OutPut_1->setDisabled(true);
-        index_1 = NameList.indexOf(ui->comboBox_OutPut_1->currentText());
+        if(plotIndexList.size() < 1)
+        {
+            plotIndexList.append(NameList.indexOf(ui->comboBox_OutPut_1->currentText()));
+        } else
+        {
+            plotIndexList.replace(0, NameList.indexOf(ui->comboBox_OutPut_1->currentText()));
+        }
 
+        ui->groupBoxOutput2->show();
+        emit sendIndexList(plotIndexList);
     } else
     {
         ui->comboBox_OutPut_1->setEnabled(true);
@@ -842,8 +521,15 @@ void MainWindow::on_checkBox_2_clicked() //попытка отключить о�
     if(ui->checkBox_2->isChecked())
     {
         ui->comboBox_OutPut_2->setDisabled(true);
-        index_2 = NameList.indexOf(ui->comboBox_OutPut_2->currentText());
-
+        if(plotIndexList.size() < 2)
+        {
+            plotIndexList.append(NameList.indexOf(ui->comboBox_OutPut_2->currentText()));
+        } else
+        {
+            plotIndexList.replace(1, NameList.indexOf(ui->comboBox_OutPut_2->currentText()));
+        }
+        ui->groupBoxOutput3->show();
+        emit sendIndexList(plotIndexList);
     } else
     {
         ui->comboBox_OutPut_2->setEnabled(true);
@@ -858,8 +544,15 @@ void MainWindow::on_checkBox_3_clicked() //попытка отключить о�
     if(ui->checkBox_3->isChecked())
     {
         ui->comboBox_OutPut_3->setDisabled(true);
-        index_3 = NameList.indexOf(ui->comboBox_OutPut_3->currentText());
-
+        if(plotIndexList.size() < 3)
+        {
+            plotIndexList.append(NameList.indexOf(ui->comboBox_OutPut_3->currentText()));
+        } else
+        {
+            plotIndexList.replace(2, NameList.indexOf(ui->comboBox_OutPut_3->currentText()));
+        }
+        ui->groupBoxOutput4->show();
+        emit sendIndexList(plotIndexList);
     } else
     {
         ui->comboBox_OutPut_3->setEnabled(true);
@@ -874,8 +567,15 @@ void MainWindow::on_checkBox_4_clicked() //попытка отключить о�
     if(ui->checkBox_4->isChecked())
     {
         ui->comboBox_OutPut_4->setDisabled(true);
-        index_4 = NameList.indexOf(ui->comboBox_OutPut_4->currentText());
-
+        if(plotIndexList.size() < 4)
+        {
+            plotIndexList.append(NameList.indexOf(ui->comboBox_OutPut_4->currentText()));
+        } else
+        {
+            plotIndexList.replace(3, NameList.indexOf(ui->comboBox_OutPut_4->currentText()));
+        }
+        ui->groupBoxOutput5->show();
+        emit sendIndexList(plotIndexList);
     } else
     {
         ui->comboBox_OutPut_4->setEnabled(true);
@@ -890,8 +590,14 @@ void MainWindow::on_checkBox_5_clicked() //попытка отключить о�
     if(ui->checkBox_5->isChecked())
     {
         ui->comboBox_OutPut_5->setDisabled(true);
-        index_5 = NameList.indexOf(ui->comboBox_OutPut_5->currentText());
-
+        if(plotIndexList.size() < 5)
+        {
+            plotIndexList.append(NameList.indexOf(ui->comboBox_OutPut_5->currentText()));
+        }else
+        {
+            plotIndexList.replace(4, NameList.indexOf(ui->comboBox_OutPut_5->currentText()));
+        }
+        emit sendIndexList(plotIndexList);
     } else
     {
         ui->comboBox_OutPut_5->setEnabled(true);
@@ -903,7 +609,7 @@ void MainWindow::on_checkBox_5_clicked() //попытка отключить о�
 
 void MainWindow::on_pushButton_Check_clicked()//Проверка сПИДа
 {
-    pid_Scan();
+    device->pidScan(ui->comboBox_Output->currentText());
     return;
 }
 
@@ -934,31 +640,118 @@ void MainWindow::on_checkBox_fixPlot_P_clicked()//Разрешение поль�
 void MainWindow::on_pushButton_Export_clicked()
 {
     QString Name;
-    Name.append("data/");
-    Name.append(ui->lineEdit_FileName_Export->text());
-    Name.append(".dat");
-    if(QFile::exists(Name))
-    {
-        emit responce("Set another name");
-        return;
-    }
-    if (reserve_file->isOpen())
-    {
-        if (ui->lineEdit_FileName_Export->text().remove(" ", Qt::CaseInsensitive)!="")
-        {
-            if(reserve_file->copy(Name))
-            {
-                reserve_file->open(QIODevice::ReadWrite);
-                reserve_file->readAll();
-                return;
-            }
-        }
-    }
-    emit responce("File wasn't created");
+    Name = ui->lineEdit_FileName_Export->text();
+    device->exportData(Name);
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     log_file->write("Closed\n");
+    emit finishIt();
+    QTest::qWait(200);
     QMainWindow::closeEvent(event);
 }
+
+void MainWindow::gotConnected()
+{
+    ui->pushButton_Connect_TC->setText("Disconnect");
+    ui->groupBoxOutput1->show();
+    ui->groupBoxPID->show();
+    ui->groupBoxFile->show();
+    ui->groupBoxPower->show();
+    ui->pushButton_Plot->show();
+    ui->comboBox_Output->show();
+}
+
+void MainWindow::addDataToGraphT(const int index, double value, double time)
+{
+    ui->widget_T->graph(index)->addData(time, value);
+    if(index == 0)
+    {
+        ui->lineEdit_Channel_1->setText(QString::number(value));
+        SetColour(ui->comboBox_Colour_1->currentText(), index, "T");
+        ui->label_unit_1->setText("C");
+    }
+    if(index == 1)
+    {
+        ui->lineEdit_Channel_2->setText(QString::number(value));
+        SetColour(ui->comboBox_Colour_2->currentText(), index, "T");
+        ui->label_unit_2->setText("C");
+    }
+    if(index == 2)
+    {
+        ui->lineEdit_Channel_3->setText(QString::number(value));
+        SetColour(ui->comboBox_Colour_3->currentText(), index, "T");
+        ui->label_unit_3->setText("C");
+    }
+    if(index == 3)
+    {
+        ui->lineEdit_Channel_4->setText(QString::number(value));
+        SetColour(ui->comboBox_Colour_4->currentText(), index, "T");
+        ui->label_unit_4->setText("C");
+    }
+    if(index == 4)
+    {
+        ui->lineEdit_Channel_5->setText(QString::number(value));
+        SetColour(ui->comboBox_Colour_5->currentText(), index, "T");
+        ui->label_unit_5->setText("C");
+    }
+}
+
+void MainWindow::addDataToGraphP(const int index, double value, double time)
+{
+    ui->widget_P->graph(index)->addData(time, value);
+    if(index == 0)
+    {
+        ui->lineEdit_Channel_1->setText(QString::number(value));
+        SetColour(ui->comboBox_Colour_1->currentText(), index, "P");
+        ui->label_unit_1->setText("W");
+    }
+    if(index == 1)
+    {
+        ui->lineEdit_Channel_2->setText(QString::number(value));
+        SetColour(ui->comboBox_Colour_2->currentText(), index, "P");
+        ui->label_unit_2->setText("W");
+    }
+    if(index == 2)
+    {
+        ui->lineEdit_Channel_3->setText(QString::number(value));
+        SetColour(ui->comboBox_Colour_3->currentText(), index, "P");
+        ui->label_unit_3->setText("W");
+    }
+    if(index == 3)
+    {
+        ui->lineEdit_Channel_4->setText(QString::number(value));
+        SetColour(ui->comboBox_Colour_4->currentText(), index, "P");
+        ui->label_unit_4->setText("W");
+    }
+    if(index == 4)
+    {
+        ui->lineEdit_Channel_5->setText(QString::number(value));
+        SetColour(ui->comboBox_Colour_5->currentText(), index, "P");
+        ui->label_unit_5->setText("W");
+    }
+}
+
+void MainWindow::updateGraphs()
+{
+    if(!ui->checkBox_fixPlot_P->isChecked())
+    {
+        ui->widget_P->rescaleAxes();
+        if(ui->widget_P->yAxis->range().size()<0.01)
+        {
+            ui->widget_P->yAxis->setRange(ui->widget_P->yAxis->range().center()-0.1, ui->widget_P->yAxis->range().center()+0.1);
+        }
+        ui->widget_P->replot();
+    }
+    if (!ui->checkBox_fixPlot_T->isChecked())
+    {
+        ui->widget_T->rescaleAxes();
+        if(ui->widget_T->yAxis->range().size()<0.01)
+        {
+            ui->widget_T->yAxis->setRange(ui->widget_T->yAxis->range().center()-0.1, ui->widget_T->yAxis->range().center()+0.1);
+        }
+        ui->widget_T->replot();
+    }
+}
+
