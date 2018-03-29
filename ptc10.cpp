@@ -448,7 +448,7 @@ void PTC10::plotStart()
         QDateTime time;
         time = QDateTime::currentDateTime();
 
-        name = "data/Reserve_file_"+time.toString("dd_MM_yyyy_hh_mm_ss") + ".dat";
+        name = "dataImpairor/Reserve_file_"+time.toString("dd_MM_yyyy_hh_mm_ss") + ".dat";
         reserveFile->setFileName(name);
         if(!reserveFile->open(QIODevice::WriteOnly))
         {
@@ -514,6 +514,10 @@ void PTC10::plot()
 
     for(int i = 0; i<plotIndexList.size(); i++)
     {
+        if(plotIndexList.at(i) == -1)
+        {
+            break;
+        }
         //plottedValueList.append(ValueList.at(plotIndexList.at(i)));
         value = ValueList.at(plotIndexList.at(i)).toDouble();
         if(UnitList.at(plotIndexList.at(i)).contains("C") | (UnitList.at(plotIndexList.at(i)).contains("K")))
@@ -535,7 +539,7 @@ void PTC10::plotStop()
 
 void PTC10::exportData(QString Name)
 {
-    Name.prepend("data/");
+    Name.prepend("dataImpairor/");
     Name.append(".dat");
     if(QFile::exists(Name))
     {

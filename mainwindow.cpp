@@ -82,14 +82,14 @@ MainWindow::MainWindow(QWidget *parent) : // То что произойдет в
 //!!Чисто формально пользователь может её удалить и что-нить сломается
     QDir dir;
     dir = QDir::current();
-    if(!dir.exists("data"))
+    if(!dir.exists("dataImpairor"))
     {
-        dir.mkdir("data");
+        dir.mkdir("dataImpairor");
     }
 
 //Создание лог файла
 
-    log_file->setFileName("data/log.txt");
+    log_file->setFileName("dataImpairor/log.txt");
     if(!log_file->open(QIODevice::ReadWrite)) //на случай если не получится открыть(ну мало ли вдруг кто то параллельно юзает)
     {
         ui->textLineResponce->setText("Log file wrecked");
@@ -342,6 +342,15 @@ void MainWindow::on_pushButton_Plot_clicked()//Вечный(нет) цикл
     {
         if(!plotIndexList.isEmpty())
         {
+            for (int i = 0; i<5; i++)
+            {
+                ui->widget_T->graph(i)->data().data()->clear();
+            }
+            for (int i = 0; i<5; i++)
+            {
+                ui->widget_P->graph(i)->data().data()->clear();
+            }
+
             emit sendIndexList(plotIndexList);
             ui->pushButton_Plot->setText("STOP");
             emit requestForPlotStart();
@@ -373,8 +382,10 @@ void MainWindow::on_checkBox_1_clicked() //попытка отключить о�
     } else
     {
         ui->comboBox_OutPut_1->setEnabled(true);
+        plotIndexList.replace(0, -1);
         ui->widget_P->graph(0)->data().data()->clear();
         ui->widget_T->graph(0)->data().data()->clear();
+        emit sendIndexList(plotIndexList);
     }
 }
 
@@ -395,8 +406,10 @@ void MainWindow::on_checkBox_2_clicked() //попытка отключить о�
     } else
     {
         ui->comboBox_OutPut_2->setEnabled(true);
+        plotIndexList.replace(1, -1);
         ui->widget_P->graph(1)->data().data()->clear();
         ui->widget_T->graph(1)->data().data()->clear();
+        emit sendIndexList(plotIndexList);
 
     }
 }
@@ -418,8 +431,10 @@ void MainWindow::on_checkBox_3_clicked() //попытка отключить о�
     } else
     {
         ui->comboBox_OutPut_3->setEnabled(true);
+        plotIndexList.replace(2, -1);
         ui->widget_P->graph(2)->data().data()->clear();
         ui->widget_T->graph(2)->data().data()->clear();
+        emit sendIndexList(plotIndexList);
 
     }
 }
@@ -441,8 +456,10 @@ void MainWindow::on_checkBox_4_clicked() //попытка отключить о�
     } else
     {
         ui->comboBox_OutPut_4->setEnabled(true);
+        plotIndexList.replace(3, -1);
         ui->widget_P->graph(3)->data().data()->clear();
         ui->widget_T->graph(3)->data().data()->clear();
+        emit sendIndexList(plotIndexList);
 
     }
 }
@@ -463,8 +480,10 @@ void MainWindow::on_checkBox_5_clicked() //попытка отключить о�
     } else
     {
         ui->comboBox_OutPut_5->setEnabled(true);
+        plotIndexList.replace(4, -1);
         ui->widget_P->graph(4)->data().data()->clear();
         ui->widget_T->graph(4)->data().data()->clear();
+        emit sendIndexList(plotIndexList);
 
     }
 }
@@ -620,13 +639,5 @@ void MainWindow::updateGraphs() //перестроение графиков
 void MainWindow::plotHadStopped() //по факту РЕАЛЬНОЙ остановки построения(вечного цикла)
 {
     ui->pushButton_Plot->setText("PLOT");
-    for (int i = 0; i<5; i++)
-    {
-        ui->widget_T->graph(i)->data().data()->clear();
-    }
-    for (int i = 0; i<5; i++)
-    {
-        ui->widget_P->graph(i)->data().data()->clear();
-    }
 }
 
