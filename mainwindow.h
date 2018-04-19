@@ -71,6 +71,7 @@ private slots:
     void addDataToGraphP(const int index, double value, double time);
     void updateGraphs();
     void plotHadStopped();
+    void on_checkBox_outputEnable_clicked();
 
 signals:
     void responce(const QString data);
@@ -86,6 +87,7 @@ signals:
     void requestForPlotStop();
     void requestForPIDScan(QString output);
     void requestForExport(QString Name);
+    void requestForOutputEnable(QString message);
 
 public:
     explicit MainWindow(QWidget *parent = 0);
