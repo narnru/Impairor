@@ -37,6 +37,7 @@ MainWindow::MainWindow(QWidget *parent) : // То что произойдет в
     connect(this, SIGNAL(requestForPlotStop()), device, SLOT(plotStop()));
     connect(this, SIGNAL(requestForPIDScan(QString)), device, SLOT(pidScan(QString)));
     connect(this, SIGNAL(requestForExport(QString)), device, SLOT(exportData(QString)));
+    connect(this, SIGNAL(requestForOutputEnable(QString)), device, SLOT(OutputEnable(QString)));
     connect(tread, SIGNAL(started()), device, SLOT(create())); // При запуске другого потока надо создать в ДРУГОМ потоке набор переменных аля сериал порт
 
     device->moveToThread(tread); //Отправляем элемент класса работающий с PTC в другой поток чтобы не мешался
@@ -654,3 +655,18 @@ void MainWindow::plotHadStopped() //по факту РЕАЛЬНОЙ остан�
     ui->pushButton_Plot->setText("PLOT");
 }
 
+
+void MainWindow::on_checkBox_outputEnable_clicked()
+{
+    if(ui->checkBox_outputEnable->isChecked())
+    {
+        emit requestForOutputEnable("outputenable = on");
+        emit responce("Output Enable ON");
+    }
+    else
+    {
+        QString message = "outputenable = off";
+        emit requestForOutputEnable(message);
+        emit responce("Output Enable OFF");
+    }
+}

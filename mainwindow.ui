@@ -737,6 +737,19 @@
      </layout>
     </widget>
    </widget>
+   <widget class="QCheckBox" name="checkBox_outputEnable">
+    <property name="geometry">
+     <rect>
+      <x>700</x>
+      <y>620</y>
+      <width>91</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>output Enable</string>
+    </property>
+   </widget>
    <zorder>layoutWidget</zorder>
    <zorder>groupBoxOutput1</zorder>
    <zorder>line_2</zorder>
@@ -753,6 +766,7 @@
    <zorder>checkBox_fixPlot_T</zorder>
    <zorder>checkBox_fixPlot_P</zorder>
    <zorder>groupBoxFile</zorder>
+   <zorder>checkBox_outputEnable</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
@@ -760,7 +774,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>25</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuOptional">

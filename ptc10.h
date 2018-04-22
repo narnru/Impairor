@@ -42,7 +42,7 @@ signals:
         void dataForGraph_T(const int graphNumber, double value, double time);
         void updateGraphs();
         void readNamesResult(QStringList nameList);
-        void readUnitsResult(QStringList unitList, QStringList outputList);
+        void readUnitsResult(QStringList unitList, QStringList outputList);      
 
 public slots:
         bool isOpen();
@@ -65,6 +65,7 @@ public slots:
         void setIndexList(QList<int> indexList);
         void finish();
         void create();
+        void OutputEnable(QString message);
 };
 
 #endif // PTC10_H

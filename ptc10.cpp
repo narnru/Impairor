@@ -387,6 +387,20 @@ void PTC10::pidStart(QString output, QStringList pidStatus)
     return;
 }
 
+void PTC10::OutputEnable(QString message)
+{
+    if(serial->isOpen())
+    {
+        sendDataAction(message);
+    }
+    else
+    {
+        emit responce("Connect to smth first, please");
+        return;
+    }
+    return;
+}
+
 void PTC10::powerStart(QString output, float power)
 {
     QString reply;
