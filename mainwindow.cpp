@@ -12,7 +12,7 @@ MainWindow::MainWindow(QWidget *parent) : // То что произойдет в
     ui->setupUi(this); //Хз что это
     log_file = new QFile(this); // Лог файл
     device = new PTC10(); // класс в котором должны лежать все функции связанные с работой термоконтроллера
-    QThread *tread = new QThread(this);
+    tread = new QThread(this);
     qRegisterMetaType<QList<int>>("QList<int>");
 
 // Небесполезная тренировка пользования системой сигнал слот
@@ -143,6 +143,7 @@ MainWindow::MainWindow(QWidget *parent) : // То что произойдет в
 
 void MainWindow::on_actionUpdate_available_ports_triggered()// кнопачка чтобы обновить список доступных портов
 {
+// Почистим старый список и добавим новый
     ui->comboBoxPortName->clear();
 
     foreach (const QSerialPortInfo &info, QSerialPortInfo::availablePorts()) // запрос компу про доступные порты
@@ -154,12 +155,17 @@ void MainWindow::on_actionUpdate_available_ports_triggered()// кнопачка 
 
 void MainWindow::on_actionCalibrate_wait_time_triggered()// кнопачка чтобы попытаться откалибровать время
 {
+// Ну ачевидно же
+
     emit requestForCalibrateWaitTime();
     return;
 }
 
 void MainWindow::showResponceData(QString data) // Слот для отображения чего нибудь в строчку responce и лог файл
 {
+// Напишем строчку и пользователю и тому наркоману который будет читать лог файл который моими стараниями абсолютно бесполезен
+// Потому что не пишет даже близко никакой нужной информации
+
     ui->textLineResponce->setText(data);
     if(log_file->isOpen())
     {
@@ -188,15 +194,15 @@ void MainWindow::on_pushButton_Recieve_clicked()//кнопачка чтобы п
 
 void MainWindow::on_pushButton_Send_clicked() // Для желающих общаться с теромоконтроллером лапками. МНУ. ЭТО МНУ! Я ОДИН ТАКОЙ.
 {
-    QString msg;
-    msg = ui->textLineSend->text();
-    emit requestForSendAndRead(msg);
+// прочитать строчку которую написал юзверь и отправить термоконтроллеру. Пусть разбирается
+
+    emit requestForSendAndRead(ui->textLineSend->text());
     return;
 }
 
 void MainWindow::on_pushButton_Connect_TC_clicked()//кнопачка чтобы совокупить прогу и контроллер
 {
-    if(ui->pushButton_Connect_TC->text() == "Connect")
+    if(ui->pushButton_Connect_TC->text() == "Connect")//коннект
     {
         emit requestForConnect(ui->comboBoxPortName->currentText());
     } else //Дисконнект
@@ -215,6 +221,8 @@ MainWindow::~MainWindow()//При закрытии окошка
 
 void MainWindow::SetColour(QString colour, const int n, QString index) //цвет графика из checkbox
 {
+// Много "если"
+
     if (index == "T")
     {
         if (colour == "Black")
@@ -267,6 +275,8 @@ void MainWindow::ReadNames(QStringList nameList) //Функция для пол�
 {
     NameList = nameList;
 
+//Вот мне очень много где нужно хранить эту одинаковую информацию. Да-да.
+
     ui->comboBox_OutPut_1->clear();
     ui->comboBox_OutPut_2->clear();
     ui->comboBox_OutPut_3->clear();
@@ -285,6 +295,8 @@ void MainWindow::ReadNames(QStringList nameList) //Функция для пол�
 void MainWindow::ReadUnits(QStringList unitList, QStringList outputList) //Функция для получения списка единиц измерения в доступных каналах данных от PTC10. Работает на сигнале.
 {
     UnitList = unitList;
+// Исторически я сначала читаю имена а потом единицы измерения поэтому имеет смысл проверить что показания больного сошлись.
+
     ui->comboBox_Output->clear();
     if(UnitList.length() != NameList.length())
     {
@@ -300,7 +312,7 @@ void MainWindow::on_pushButton_Start_Power_clicked() //Функция для з�
     QString output = ui->comboBox_Output->currentText();
     float power = ui->lineEdit_power->text().toFloat();
 
-    if (output != "")
+    if (!output.isEmpty())
     {
         emit requestForPowerStart(output, power);
     }
@@ -320,10 +332,10 @@ void MainWindow::pid_Scan(QStringList pidStatus) //Функция для пол�
 }
 
 void MainWindow::on_pushButton_Start_PID_clicked() //(запрос на)Запуск сПИДа
-{
+{  
     QStringList pidStatus;
     QString output = ui->comboBox_Output->currentText();
-    if(output != "")
+    if(!output.isEmpty())
     {
         pidStatus.append(ui->pid_LineEdit_P->text());
         pidStatus.append(ui->pid_LineEdit_I->text());
@@ -528,7 +540,8 @@ void MainWindow::on_pushButton_Export_clicked()//Запрос на экспор�
 void MainWindow::closeEvent(QCloseEvent *event)//При закрытии проги
 {
     log_file->write("Closed\n");
-    emit finishIt();
+    device->deleteLater();
+    tread->exit();
     QTest::qWait(200);
     QMainWindow::closeEvent(event);
 }

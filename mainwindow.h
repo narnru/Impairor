@@ -37,6 +37,7 @@ private:
     int index_1, index_2, index_3, index_4, index_5;
     PTC10 *device;
     QList <int> plotIndexList;
+    QThread *tread;
 
 
 private slots:

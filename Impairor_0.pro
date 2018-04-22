@@ -14,6 +14,15 @@ RC_FILE = Rc.rc
 
 QMAKE_LFLAGS += -static -static-libgcc
 
+QMAKE_CFLAGS_RELEASE += -O2
+QMAKE_CFLAGS += -Wall -Wextra -Wfloat-equal -Wundef -Wwrite-strings -Wlogical-op -Wmissing-declarations -Wshadow -Wdiv-by-zero
+QMAKE_CFLAGS += -isystem $$[QT_INSTALL_HEADERS]
+
+QMAKE_CXXFLAGS_RELEASE += -O2
+QMAKE_CXXFLAGS += -Wall -Wextra -Wfloat-equal -Wundef -Wwrite-strings -Wlogical-op -Wmissing-declarations -Wshadow -Wdiv-by-zero
+QMAKE_CXXFLAGS += -isystem $$[QT_INSTALL_HEADERS]
+
+
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
 
 TARGET = Impairor_0

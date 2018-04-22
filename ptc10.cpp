@@ -309,17 +309,18 @@ void PTC10::pidScan(QString output)
 
 void PTC10::pidStart(QString output, QStringList pidStatus)
 {
-    QString reply;
-    QString message;
-    float pid;
 
     if(serial->isOpen())
     {
-        if(output == "")
+        if(output.isEmpty())
         {
             emit responce("No output detected");
         }else
         {
+            QString reply;
+            QString message;
+            float pid;
+
             message = output;
             message.append(".list");
 
@@ -470,14 +471,6 @@ void PTC10::plotStart()
 
         timeStart = QDateTime::currentDateTime().toMSecsSinceEpoch()/1000.0;
 
-
-//        index_1 = NameList.indexOf(ui->comboBox_OutPut_1->currentText());
-//        index_2 = NameList.indexOf(ui->comboBox_OutPut_2->currentText());
-//        index_3 = NameList.indexOf(ui->comboBox_OutPut_3->currentText());
-//        index_4 = NameList.indexOf(ui->comboBox_OutPut_4->currentText());
-//        index_5 = NameList.indexOf(ui->comboBox_OutPut_5->currentText());
-
-//        ui->pushButton_Plot->setText("STOP");
         run = true;
 
         while (run)
@@ -491,18 +484,19 @@ void PTC10::plotStart()
 
 void PTC10::plot()
 {
-    double currentSystemTime;
-    double currentTime;
     QStringList ValueList;
     sendDataAction("getoutput");
     QString reply = readDataAction();
-    QStringList plottedValueList;
+//    QStringList plottedValueList;
 
     ValueList = reply.split(",");
     if(ValueList.size() != NameList.size())
     {
         return;
     }
+
+    double currentSystemTime;
+    double currentTime;
 
     currentSystemTime = QTime::currentTime().msecsSinceStartOfDay()/1000.0;
     currentTime = QDateTime::currentDateTime().toMSecsSinceEpoch()/1000.0 - timeStart;
