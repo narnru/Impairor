@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
+    <width>850</width>
     <height>739</height>
    </rect>
   </property>
@@ -742,12 +742,12 @@
      <rect>
       <x>700</x>
       <y>620</y>
-      <width>91</width>
-      <height>17</height>
+      <width>111</width>
+      <height>16</height>
      </rect>
     </property>
     <property name="text">
-     <string>output Enable</string>
+     <string>Output Enable</string>
     </property>
    </widget>
    <zorder>layoutWidget</zorder>
@@ -773,8 +773,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
-     <height>21</height>
+     <width>850</width>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuOptional">
@@ -785,14 +785,6 @@
     <addaction name="actionCalibrate_wait_time"/>
    </widget>
    <addaction name="menuOptional"/>
-  </widget>
-  <widget class="QToolBar" name="mainToolBar">
-   <attribute name="toolBarArea">
-    <enum>TopToolBarArea</enum>
-   </attribute>
-   <attribute name="toolBarBreak">
-    <bool>false</bool>
-   </attribute>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionUpdate_available_ports">

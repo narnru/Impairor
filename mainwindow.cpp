@@ -108,9 +108,19 @@ MainWindow::MainWindow(QWidget *parent) : // То что произойдет в
     ui->widget_T->xAxis->setLabel("Time"); // Оси графика для температуры
     ui->widget_T->yAxis->setLabel("C");
     ui->widget_T->yAxis->setRange(0, 36); // временно
+    ui->widget_T->yAxis->ticker()->setTickStepStrategy(QCPAxisTicker::tssMeetTickCount);
+    ui->widget_T->yAxis->ticker()->setTickCount(5);
     ui->widget_T->clearGraphs();
 
+    ui->widget_P->xAxis->setLabel("Time"); // Оси графика для температуры
+    ui->widget_P->yAxis->setLabel("W");
+    ui->widget_P->yAxis->setRange(0, 10); // временно
+    ui->widget_P->yAxis->ticker()->setTickStepStrategy(QCPAxisTicker::tssMeetTickCount);
+    ui->widget_P->yAxis->ticker()->setTickCount(5);
+    ui->widget_P->clearGraphs();
+
 // Чтобы гарантировать что мы всегда сможем обратиться к графику
+
 
     ui->widget_T->addGraph();
     ui->widget_T->addGraph();
@@ -140,6 +150,7 @@ MainWindow::MainWindow(QWidget *parent) : // То что произойдет в
     ui->groupBoxPower->hide();
     ui->pushButton_Plot->hide();
     ui->comboBox_Output->hide();
+    ui->checkBox_outputEnable->hide();
 }
 
 void MainWindow::on_actionUpdate_available_ports_triggered()// кнопачка чтобы обновить список доступных портов
@@ -210,6 +221,18 @@ void MainWindow::on_pushButton_Connect_TC_clicked()//кнопачка чтобы
     {
         emit requestForDisconnect();
         ui->pushButton_Connect_TC->setText("Connect");
+
+        ui->groupBoxOutput1->hide();
+        ui->groupBoxOutput2->hide();
+        ui->groupBoxOutput3->hide();
+        ui->groupBoxOutput4->hide();
+        ui->groupBoxOutput5->hide();
+        ui->groupBoxPID->hide();
+        ui->groupBoxPower->hide();
+        ui->pushButton_Plot->hide();
+        ui->comboBox_Output->hide();
+        ui->checkBox_outputEnable->hide();
+
         return;
     }
     return;
@@ -542,8 +565,8 @@ void MainWindow::closeEvent(QCloseEvent *event)//При закрытии про�
 {
     log_file->write("Closed\n");
     device->deleteLater();
+    QApplication::processEvents();
     tread->exit();
-    QTest::qWait(200);
     QMainWindow::closeEvent(event);
 }
 
@@ -556,6 +579,7 @@ void MainWindow::gotConnected()//По факту подключения к PTC
     ui->groupBoxPower->show();
     ui->pushButton_Plot->show();
     ui->comboBox_Output->show();
+    ui->checkBox_outputEnable->show();
 }
 
 void MainWindow::addDataToGraphT(const int index, double value, double time) // обработчик получения данных для построения
@@ -632,20 +656,34 @@ void MainWindow::updateGraphs() //перестроение графиков
 {
     if(!ui->checkBox_fixPlot_P->isChecked())
     {
+        ui->widget_P->yAxis->setRange(0, 10); // временно
         ui->widget_P->rescaleAxes();
-        if(ui->widget_P->yAxis->range().size()<0.01)
+
+        ui->widget_P->yAxis->scaleRange(1.1);
+        ui->widget_P->yAxis->ticker()->setTickStepStrategy(QCPAxisTicker::tssMeetTickCount);
+        ui->widget_P->yAxis->ticker()->setTickCount(5);
+
+        if(ui->widget_P->yAxis->range().size()<0.1)
         {
-            ui->widget_P->yAxis->setRange(ui->widget_P->yAxis->range().center()-0.1, ui->widget_P->yAxis->range().center()+0.1);
+            ui->widget_P->yAxis->setRange(ui->widget_P->yAxis->range().center()-0.05, ui->widget_P->yAxis->range().center()+0.05);
         }
+
         ui->widget_P->replot();
     }
     if (!ui->checkBox_fixPlot_T->isChecked())
     {
+        ui->widget_T->yAxis->setRange(0, 10); // временно
         ui->widget_T->rescaleAxes();
-        if(ui->widget_T->yAxis->range().size()<0.01)
+
+        ui->widget_T->yAxis->scaleRange(1.1);
+        ui->widget_T->yAxis->ticker()->setTickStepStrategy(QCPAxisTicker::tssMeetTickCount);
+        ui->widget_T->yAxis->ticker()->setTickCount(5);
+
+        if(ui->widget_T->yAxis->range().size()<0.1)
         {
-            ui->widget_T->yAxis->setRange(ui->widget_T->yAxis->range().center()-0.1, ui->widget_T->yAxis->range().center()+0.1);
+            ui->widget_T->yAxis->setRange(ui->widget_T->yAxis->range().center()-0.05, ui->widget_T->yAxis->range().center()+0.05);
         }
+
         ui->widget_T->replot();
     }
 }
@@ -654,7 +692,6 @@ void MainWindow::plotHadStopped() //по факту РЕАЛЬНОЙ остан�
 {
     ui->pushButton_Plot->setText("PLOT");
 }
-
 
 void MainWindow::on_checkBox_outputEnable_clicked()
 {

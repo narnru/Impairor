@@ -548,7 +548,7 @@ void PTC10::plotStop()
 void PTC10::exportData(QString Name)
 {
     Name.prepend("dataImpairor/");
-    Name.append(".dat");
+    Name.append(QDateTime::currentDateTime().toString("d_M_yy_h_m_s") + ".dat");
     if(QFile::exists(Name))
     {
         emit responce("Set another name");
@@ -556,16 +556,13 @@ void PTC10::exportData(QString Name)
     }
     if (reserveFile->isOpen())
     {
-        QString Name1 = Name;
-        if (Name1.remove(" ", Qt::CaseInsensitive)!="")
+
+        if(reserveFile->copy(Name))
         {
-            if(reserveFile->copy(Name))
-            {
-                reserveFile->open(QIODevice::ReadWrite);
-                reserveFile->readAll();
-                emit responce("Exported");
-                return;
-            }
+            reserveFile->open(QIODevice::ReadWrite);
+            reserveFile->readAll();
+            emit responce("Exported");
+            return;
         }
     }
     emit responce("File wasn't created");
@@ -609,7 +606,7 @@ void PTC10::create()
 
 PTC10::~PTC10()
 {
-    this->thread()->exit();
+//    this->thread()->exit();
     delete serial;
 }
 
