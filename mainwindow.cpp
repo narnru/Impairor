@@ -46,6 +46,11 @@ MainWindow::MainWindow(QWidget *parent) : // То что произойдет в
 // Заполнение ComboBox-ов связанных с цветами графиков
 
     QStringList Colours;
+    QColor red(Qt::red);
+    QColor green(Qt::green);
+    QColor blue(Qt::blue);
+    QColor yellow(Qt::darkYellow);
+
     Colours.push_back("Black");
     Colours.push_back("Red");
     Colours.push_back("Green");
@@ -53,14 +58,34 @@ MainWindow::MainWindow(QWidget *parent) : // То что произойдет в
     Colours.push_back("Yellow");
     ui->comboBox_Colour_1->clear();
     ui->comboBox_Colour_1->addItems(Colours);
+    ui->comboBox_Colour_1->setItemData(1, red, Qt::TextColorRole);
+    ui->comboBox_Colour_1->setItemData(2, green, Qt::TextColorRole);
+    ui->comboBox_Colour_1->setItemData(3, blue, Qt::TextColorRole);
+    ui->comboBox_Colour_1->setItemData(4, yellow, Qt::TextColorRole);
     ui->comboBox_Colour_2->clear();
     ui->comboBox_Colour_2->addItems(Colours);
+    ui->comboBox_Colour_2->setItemData(1, red, Qt::TextColorRole);
+    ui->comboBox_Colour_2->setItemData(2, green, Qt::TextColorRole);
+    ui->comboBox_Colour_2->setItemData(3, blue, Qt::TextColorRole);
+    ui->comboBox_Colour_2->setItemData(4, yellow, Qt::TextColorRole);
     ui->comboBox_Colour_3->clear();
     ui->comboBox_Colour_3->addItems(Colours);
+    ui->comboBox_Colour_3->setItemData(1, red, Qt::TextColorRole);
+    ui->comboBox_Colour_3->setItemData(2, green, Qt::TextColorRole);
+    ui->comboBox_Colour_3->setItemData(3, blue, Qt::TextColorRole);
+    ui->comboBox_Colour_3->setItemData(4, yellow, Qt::TextColorRole);
     ui->comboBox_Colour_4->clear();
     ui->comboBox_Colour_4->addItems(Colours);
+    ui->comboBox_Colour_4->setItemData(1, red, Qt::TextColorRole);
+    ui->comboBox_Colour_4->setItemData(2, green, Qt::TextColorRole);
+    ui->comboBox_Colour_4->setItemData(3, blue, Qt::TextColorRole);
+    ui->comboBox_Colour_4->setItemData(4, yellow, Qt::TextColorRole);
     ui->comboBox_Colour_5->clear();
     ui->comboBox_Colour_5->addItems(Colours);
+    ui->comboBox_Colour_5->setItemData(1, red, Qt::TextColorRole);
+    ui->comboBox_Colour_5->setItemData(2, green, Qt::TextColorRole);
+    ui->comboBox_Colour_5->setItemData(3, blue, Qt::TextColorRole);
+    ui->comboBox_Colour_5->setItemData(4, yellow, Qt::TextColorRole);
 
 //Установка изначальной позиции на разные цвета потому что так удобнее
 
@@ -141,16 +166,16 @@ MainWindow::MainWindow(QWidget *parent) : // То что произойдет в
 
 // Попытка спрятать срам
 
-    ui->groupBoxOutput1->hide();
-    ui->groupBoxOutput2->hide();
-    ui->groupBoxOutput3->hide();
-    ui->groupBoxOutput4->hide();
-    ui->groupBoxOutput5->hide();
-    ui->groupBoxPID->hide();
-    ui->groupBoxPower->hide();
-    ui->pushButton_Plot->hide();
-    ui->comboBox_Output->hide();
-    ui->checkBox_outputEnable->hide();
+//    ui->groupBoxOutput1->hide();
+//    ui->groupBoxOutput2->hide();
+//    ui->groupBoxOutput3->hide();
+//    ui->groupBoxOutput4->hide();
+//    ui->groupBoxOutput5->hide();
+//    ui->groupBoxPID->hide();
+//    ui->groupBoxPower->hide();
+//    ui->pushButton_Plot->hide();
+//    ui->comboBox_Output->hide();
+//    ui->checkBox_outputEnable->hide();
 }
 
 void MainWindow::on_actionUpdate_available_ports_triggered()// кнопачка чтобы обновить список доступных портов
@@ -267,7 +292,7 @@ void MainWindow::SetColour(QString colour, const int n, QString index) //цве�
         }
         if (colour == "Yellow")
         {
-            ui->widget_T->graph(n)->setPen(QPen(Qt::yellow));
+            ui->widget_T->graph(n)->setPen(QPen(Qt::darkYellow));
         }
     }
     if (index == "P")
@@ -290,7 +315,7 @@ void MainWindow::SetColour(QString colour, const int n, QString index) //цве�
         }
         if (colour == "Yellow")
         {
-            ui->widget_P->graph(n)->setPen(QPen(Qt::yellow));
+            ui->widget_P->graph(n)->setPen(QPen(Qt::darkYellow));
         }
     }
 }
