@@ -166,16 +166,16 @@ MainWindow::MainWindow(QWidget *parent) : // То что произойдет в
 
 // Попытка спрятать срам
 
-//    ui->groupBoxOutput1->hide();
-//    ui->groupBoxOutput2->hide();
-//    ui->groupBoxOutput3->hide();
-//    ui->groupBoxOutput4->hide();
-//    ui->groupBoxOutput5->hide();
-//    ui->groupBoxPID->hide();
-//    ui->groupBoxPower->hide();
-//    ui->pushButton_Plot->hide();
-//    ui->comboBox_Output->hide();
-//    ui->checkBox_outputEnable->hide();
+    ui->groupBoxOutput1->hide();
+    ui->groupBoxOutput2->hide();
+    ui->groupBoxOutput3->hide();
+    ui->groupBoxOutput4->hide();
+    ui->groupBoxOutput5->hide();
+    ui->groupBoxPID->hide();
+    ui->groupBoxPower->hide();
+    ui->pushButton_Plot->hide();
+    ui->comboBox_Output->hide();
+    ui->checkBox_outputEnable->hide();
 }
 
 void MainWindow::on_actionUpdate_available_ports_triggered()// кнопачка чтобы обновить список доступных портов
